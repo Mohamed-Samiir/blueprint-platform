@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/foundation"
+    },
+    {
+      "path": "./packages/components"
+    },
+    {
+      "path": "./packages/modules"
+    },
+    {
+      "path": "./packages/templates"
+    }
+  ]
+}
