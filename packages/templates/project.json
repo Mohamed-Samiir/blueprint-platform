@@ -1,0 +1,17 @@
+{
+  "name": "templates",
+  "sourceRoot": "packages/templates/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "packages/templates/dist",
+        "main": "packages/templates/src/index.ts",
+        "tsConfig": "packages/templates/tsconfig.lib.json",
+        "assets": ["packages/templates/*.md"]
+      }
+    }
+  }
+}

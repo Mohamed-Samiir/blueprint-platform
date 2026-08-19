@@ -1,7 +1,9 @@
 {
-  "name": "@blueprint/components",
-  "version": "0.0.1",
-  "private": true,
+  "name": "@blueprint-platform/components",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "commonjs",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
