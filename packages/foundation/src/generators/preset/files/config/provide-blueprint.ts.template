@@ -1,0 +1,13 @@
+import { BLUEPRINT_CONFIG, BlueprintConfig, DEFAULT_BLUEPRINT_CONFIG } from './template-config';
+
+export function provideBlueprint(config: Partial<BlueprintConfig> = {}) {
+  return [
+    {
+      provide: BLUEPRINT_CONFIG,
+      useValue: {
+        ...DEFAULT_BLUEPRINT_CONFIG,
+        ...config,
+      },
+    },
+  ];
+}

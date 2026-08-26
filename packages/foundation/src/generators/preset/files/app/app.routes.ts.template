@@ -1,0 +1,6 @@
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  // Feature routes are added here automatically when you generate a
+  // module (e.g. `nx g @blueprint-platform/modules:auth`).
+];

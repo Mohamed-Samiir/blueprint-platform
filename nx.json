@@ -52,5 +52,20 @@
         "^build"
       ]
     }
+  },
+  "release": {
+    "projects": [
+      "foundation",
+      "components",
+      "modules",
+      "templates"
+    ],
+    "projectsRelationship": "independent",
+    "version": {
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "projectChangelogs": true
+    }
   }
 }

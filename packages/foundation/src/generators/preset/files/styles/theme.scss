@@ -1,0 +1,13 @@
+@use 'tokens/palette-default' as default-palette;
+@use 'tokens/palette-brand-x' as brand-x-palette;
+@use 'tokens/scale' as scale;
+@use 'tokens/emit';
+
+:root {
+  --spacing: #{scale.$spacing-base};
+  --border-width: 1px;
+}
+
+@include emit.emit-vars(default-palette.$palette-default);
+@include emit.emit-vars(brand-x-palette.$palette-brand-x, '', '.theme-brand-x');
+@include emit.emit-vars(scale.$spacing-scale, 'spacing');

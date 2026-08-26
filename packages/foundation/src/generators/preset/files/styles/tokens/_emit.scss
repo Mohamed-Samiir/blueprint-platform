@@ -1,0 +1,11 @@
+@mixin emit-vars($map, $prefix: '', $selector: ':root') {
+  #{$selector} {
+    @each $name, $value in $map {
+      @if $prefix == '' {
+        --#{$name}: #{$value};
+      } @else {
+        --#{$prefix}-#{$name}: #{$value};
+      }
+    }
+  }
+}

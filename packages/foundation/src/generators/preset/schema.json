@@ -1,18 +1,33 @@
 {
   "$schema": "https://json-schema.org/schema",
-  "$id": "Preset",
-  "title": "",
+  "cli": "nx",
+  "$id": "BlueprintFoundationPreset",
+  "title": "Blueprint Foundation Preset",
   "type": "object",
   "properties": {
     "name": {
       "type": "string",
-      "description": "",
-      "$default": {
-        "$source": "argv",
-        "index": 0
-      },
-      "x-prompt": "What name would you like to use?"
+      "description": "App name"
+    },
+    "palette": {
+      "type": "string",
+      "default": "default"
+    },
+    "rtl": {
+      "type": "boolean",
+      "default": false
+    },
+    "labelPosition": {
+      "type": "string",
+      "enum": [
+        "floating",
+        "inline",
+        "top"
+      ],
+      "default": "floating"
     }
   },
-  "required": ["name"]
+  "required": [
+    "name"
+  ]
 }
