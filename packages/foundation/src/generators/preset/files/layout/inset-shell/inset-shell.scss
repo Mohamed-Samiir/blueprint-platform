@@ -1,0 +1,26 @@
+// M1 fix: an Angular component host is `display: inline` by default, which
+// leaves `hlm-sidebar-wrapper` (`flex w-full min-h-svh`) without a definite
+// containing-block width — the in-flow sidebar gap then collapses and the
+// `position: fixed` sidebar surface paints over the routed content. Giving the
+// host a block box restores the full-width flex row. See ../README.md.
+:host {
+  display: block;
+}
+
+// M6: the routed content pane tracks the sidebar colour in every palette.
+// spartan's `main[hlmSidebarInset]` ships `bg-background`; this rule is a
+// component-scoped override (no `::ng-deep`, no edit to `src/app/ui/**`) that
+// references the CSS custom properties, so `.theme-brand-x` and any future
+// palette keep working automatically.
+//
+// Because the pane fill now equals its gutter (`hlm-sidebar-wrapper` is also
+// `bg-sidebar` under `variant=inset`), spartan's `shadow-sm` was the only edge
+// separating the two — and a translucent-black shadow is invisible / muddy on a
+// dark palette like `.theme-brand-x`. Swap it for a palette-aware 1px border
+// keyed off `--sidebar-border`, which reads in both light and dark.
+main[hlmSidebarInset] {
+  background-color: var(--sidebar);
+  color: var(--sidebar-foreground);
+  box-shadow: none;
+  border: 1px solid var(--sidebar-border);
+}

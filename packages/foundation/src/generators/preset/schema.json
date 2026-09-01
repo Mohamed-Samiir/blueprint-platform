@@ -25,6 +25,17 @@
         "top"
       ],
       "default": "floating"
+    },
+    "layout": {
+      "type": "string",
+      "enum": [
+        "sidebar-shell",
+        "floating-shell",
+        "inset-shell",
+        "topbar-shell",
+        "none"
+      ],
+      "default": "none"
     }
   },
   "required": [

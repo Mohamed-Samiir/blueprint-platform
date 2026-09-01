@@ -7,7 +7,9 @@ import {
   updateJson,
 } from '@nx/devkit';
 import { applicationGenerator } from '@nx/angular/generators';
+import { Project } from 'ts-morph';
 import { patchAppConfig } from './lib/patch-app-config';
+import { patchAppRoutes } from './lib/patch-app-routes';
 import { PresetGeneratorSchema } from './schema';
 // import * as compatibility from '../../../compatibility.json';
 import { readdirSync, readFileSync } from 'fs';
@@ -18,6 +20,7 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
   const palette = options.palette ?? 'default';
   const rtl = options.rtl ?? false;
   const labelPosition = options.labelPosition ?? 'floating';
+  const layout = options.layout ?? 'none';
   const compatibility = JSON.parse(
     readFileSync(join(__dirname, '../../../compatibility.json'), 'utf-8'),
   );
@@ -39,6 +42,11 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
     json.dependencies['class-variance-authority'] = '^0.7.0';
     json.dependencies['clsx'] = '^2.1.0';
     json.dependencies['tailwind-merge'] = '^2.5.0';
+    json.dependencies['@ng-icons/core'] = '^32.0.0';
+    json.dependencies['@ng-icons/lucide'] = '^32.0.0';
+    json.dependencies['embla-carousel'] = '^8.0.0';
+    json.dependencies['embla-carousel-angular'] = '^22.0.0';
+    json.dependencies['ngx-scrollbar'] = '^19.1.0';
     json.devDependencies['tailwindcss'] = '^4.0.0';
     json.devDependencies['@tailwindcss/postcss'] = '^4.0.0';
     json.devDependencies['postcss'] = '^8.4.0';
@@ -97,6 +105,50 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
 
   patchAppConfig(tree, appRoot, { palette, rtl, labelPosition });
 
+  if (layout !== 'none') {
+    generateFiles(
+      tree,
+      joinPathFragments(__dirname, `files/layout/${layout}`),
+      `${appRoot}/src/app/layout/${layout}`,
+      {},
+    );
+
+    // `sidebar-item-flyout.ts` is stored once at the `files/layout/` root and
+    // shared (via a `../` import) by the shells that use it. In a generated
+    // project only one shell is copied, so for the two shells that import it,
+    // drop a local copy beside the shell and repoint the import so the layout
+    // folder is self-contained. The other shells never reference it, so it is
+    // absent from their generated output entirely.
+    if (layout === 'sidebar-shell' || layout === 'topbar-shell') {
+      tree.write(
+        `${appRoot}/src/app/layout/${layout}/sidebar-item-flyout.ts`,
+        readFileSync(
+          join(__dirname, 'files/layout/sidebar-item-flyout.ts'),
+          'utf-8',
+        ),
+      );
+
+      const shellPath = `${appRoot}/src/app/layout/${layout}/${layout}.ts`;
+      const shellSource = tree.read(shellPath, 'utf-8');
+      if (shellSource) {
+        const project = new Project({ useInMemoryFileSystem: true });
+        const shellFile = project.createSourceFile(shellPath, shellSource);
+        shellFile
+          .getImportDeclaration(
+            (d) => d.getModuleSpecifierValue() === '../sidebar-item-flyout',
+          )
+          ?.setModuleSpecifier('./sidebar-item-flyout');
+        tree.write(shellPath, shellFile.getFullText());
+      }
+    }
+
+    // The UI pieces the shells import (`shared/ui/sidebar`, `dropdown-menu`,
+    // `avatar`, `collapsible`, `button`, …) are already copied unconditionally
+    // by the `files/shared/ui` generateFiles call above.
+
+    patchAppRoutes(tree, { layout });
+  }
+
   tree.write(
     `${appRoot}/.blueprint/manifest.json`,
     JSON.stringify(
@@ -107,6 +159,7 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
         palette,
         rtl,
         labelPosition,
+        layout,
         components: [],
         modules: [],
         template: null,

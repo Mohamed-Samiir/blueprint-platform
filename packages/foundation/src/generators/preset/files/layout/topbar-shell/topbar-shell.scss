@@ -1,0 +1,7 @@
+// M1/M2 fix (see ../README.md): an Angular component host is `display: inline`
+// by default, which leaves `hlm-sidebar-wrapper` (`flex w-full min-h-svh`)
+// without a definite containing-block width and lets the `position: fixed`
+// sidebar surface paint over the routed content. A block host restores the row.
+:host {
+  display: block;
+}

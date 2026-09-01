@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/foundation",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "publishConfig": {
     "access": "public"
   },
@@ -58,6 +58,11 @@
               "input": "./packages/foundation/src/generators/preset/files/shared/ui",
               "glob": "**/*.ts",
               "output": "./generators/preset/files/shared/ui"
+            },
+            {
+              "input": "./packages/foundation/src/generators/preset/files/layout",
+              "glob": "**/*.ts",
+              "output": "./generators/preset/files/layout"
             },
             "./packages/foundation/compatibility.json"
           ]

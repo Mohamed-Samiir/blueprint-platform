@@ -1,7 +1,12 @@
 export interface PresetGeneratorSchema {
   name: string;
-  palette: string;
-  labelPosition: 'floating' | 'fixed' | 'stacked';
-  rtl: boolean;
-  labelPosition: string;
+  palette?: string;
+  rtl?: boolean;
+  labelPosition?: 'floating' | 'inline' | 'top';
+  layout?:
+    | 'sidebar-shell'
+    | 'floating-shell'
+    | 'inset-shell'
+    | 'topbar-shell'
+    | 'none';
 }

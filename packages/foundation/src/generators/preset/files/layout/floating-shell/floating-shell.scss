@@ -1,0 +1,8 @@
+// M1 fix: an Angular component host is `display: inline` by default, which
+// leaves `hlm-sidebar-wrapper` (`flex w-full min-h-svh`) without a definite
+// containing-block width — the in-flow sidebar gap then collapses and the
+// `position: fixed` sidebar surface paints over the routed content. Giving the
+// host a block box restores the full-width flex row. See ../README.md.
+:host {
+  display: block;
+}
