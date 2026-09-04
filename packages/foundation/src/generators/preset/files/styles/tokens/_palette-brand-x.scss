@@ -1,7 +1,11 @@
-$palette-brand-x: (
-  'primary': #7c3aed,
-  'primary-foreground': #ffffff,
-  'accent': #f5f3ff,
-  'accent-foreground': #1e1b2e,
-  'ring': #c4b5fd,
-);
+// Brand-X — LIGHT-mode brand override scaffold.
+//
+// Ships EMPTY on purpose. A generated project fills this map with its own brand
+// colours (any subset of the keys in `_palette-default.scss`). Applied via the
+// `.theme-brand-x` class: an empty map emits no rules, so "brand-x active but
+// unfilled" has zero visual effect and correctly falls through to whichever base
+// palette (default or `.dark`) is active. Keys left undefined here always fall
+// through; keys defined here win by `.theme-brand-x` specificity.
+//
+// Dark-mode brand overrides go in `_palette-brand-x-dark.scss`, not here.
+$palette-brand-x: ();

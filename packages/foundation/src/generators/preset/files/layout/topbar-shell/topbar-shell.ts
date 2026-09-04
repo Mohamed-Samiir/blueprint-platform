@@ -1,40 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideBadgeCheck,
-  lucideBell,
   lucideBookOpen,
   lucideChartBar,
   lucideChartPie,
-  lucideCheck,
   lucideChevronDown,
   lucideChevronRight,
-  lucideChevronsUpDown,
-  lucideCreditCard,
   lucideEllipsis,
   lucideFolder,
   lucideFrame,
   lucideHouse,
   lucideInbox,
-  lucideLanguages,
   lucideLayoutDashboard,
   lucideLifeBuoy,
-  lucideLogOut,
   lucideMap,
-  lucidePalette,
   lucidePlus,
   lucideSend,
   lucideSettings,
   lucideSquareTerminal,
-  lucideSun,
 } from '@ng-icons/lucide';
-import { HlmSidebarImports } from '@blueprint-platform/ui/sidebar';
+import { HlmSidebarImports, HlmSidebarService } from '@blueprint-platform/ui/sidebar';
 import { HlmDropdownMenuImports } from '@blueprint-platform/ui/dropdown-menu';
-import { HlmAvatarImports } from '@blueprint-platform/ui/avatar';
 import { HlmCollapsibleImports } from '@blueprint-platform/ui/collapsible';
-import { HlmButtonImports } from '@blueprint-platform/ui/button';
 import { SidebarItemFlyout } from '../sidebar-item-flyout';
+import { UserMenu } from '../../shared/ui/user-menu/user-menu';
+import { LanguageService } from '../../core/language/language.service';
 
 interface NavItem {
   label: string;
@@ -43,21 +34,15 @@ interface NavItem {
   children?: { label: string }[];
 }
 
-type Lang = 'en' | 'ar';
-
 /**
  * Fourth layout shell: spartan sidebar `variant="sidebar"` (icon-collapsible,
  * like `sidebar-shell`) plus a **top bar** inside the content pane.
  *
- * The top bar owns sidebar collapse (`hlmSidebarTrigger`), palette switching and
- * language/direction switching. This shell is self-contained: `dir` and the
- * `theme-brand-x` class are its own signals applied to its own
- * `hlm-sidebar-wrapper`, so it does not depend on the `layout-preview` toolbar
- * (on `/layout-preview/topbar` the top bar is authoritative — the toolbar's
- * RTL/palette toggles are redundant there). No real i18n: switching language
- * only flips `dir` and the button label.
- *
- * Deliberately a standalone copy — no shared base class with the other shells.
+ * The top bar hosts the sidebar collapse trigger and the shared `<app-user-menu>`
+ * (which carries the theme + language switchers). Direction and palette are
+ * global (`<html>`, via `ThemeService` / `LanguageService`) — this shell no
+ * longer owns that state itself. Deliberately a standalone copy — no shared base
+ * class with the other shells.
  */
 @Component({
   selector: 'app-topbar-shell',
@@ -67,10 +52,9 @@ type Lang = 'en' | 'ar';
     NgIcon,
     HlmSidebarImports,
     HlmDropdownMenuImports,
-    HlmAvatarImports,
     HlmCollapsibleImports,
-    HlmButtonImports,
     SidebarItemFlyout,
+    UserMenu,
   ],
   providers: [
     provideIcons({
@@ -91,39 +75,23 @@ type Lang = 'en' | 'ar';
       lucideSquareTerminal,
       lucideChevronDown,
       lucideChevronRight,
-      lucideChevronsUpDown,
-      lucideBadgeCheck,
-      lucideCreditCard,
-      lucideBell,
-      lucideLogOut,
-      lucideLanguages,
-      lucidePalette,
-      lucideSun,
-      lucideCheck,
     }),
   ],
   templateUrl: './topbar-shell.html',
   styleUrl: './topbar-shell.scss',
 })
 export class TopbarShell {
-  /** Shell-owned direction — the top bar's language switch drives this. */
-  protected readonly lang = signal<Lang>('en');
-  protected readonly dir = computed<'ltr' | 'rtl'>(() => (this.lang() === 'ar' ? 'rtl' : 'ltr'));
+  private readonly _lang = inject(LanguageService);
   /** spartan's `side` is a physical anchor and does not auto-flip under RTL. */
   protected readonly side = computed<'left' | 'right'>(() =>
-    this.dir() === 'rtl' ? 'right' : 'left',
+    this._lang.dir() === 'rtl' ? 'right' : 'left',
   );
 
-  /** Shell-owned palette — the top bar's theme switch toggles the class. */
-  protected readonly brandX = signal(false);
-
-  protected setLang(lang: Lang): void {
-    this.lang.set(lang);
-  }
-
-  protected toggleTheme(): void {
-    this.brandX.update((v) => !v);
-  }
+  /** Read by the template to switch flyout vs. inline rendering (Task 7). */
+  protected readonly sidebar = inject(HlmSidebarService);
+  protected readonly collapsed = computed(
+    () => this.sidebar.state() === 'collapsed' && !this.sidebar.isMobile(),
+  );
 
   protected readonly nav: NavItem[] = [
     { label: 'Dashboard', icon: 'lucideLayoutDashboard', active: true },
@@ -139,8 +107,6 @@ export class TopbarShell {
     { label: 'Reports', icon: 'lucideChartBar' },
     { label: 'Settings', icon: 'lucideSettings' },
   ];
-
-  protected readonly user = { name: 'Dev User', email: 'dev@local', initials: 'DU' };
 
   protected readonly projects = [
     { name: 'Design Engineering', icon: 'lucideFrame', info: 24 },

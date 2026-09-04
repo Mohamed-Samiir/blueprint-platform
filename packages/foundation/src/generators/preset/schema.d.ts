@@ -9,4 +9,6 @@ export interface PresetGeneratorSchema {
     | 'inset-shell'
     | 'topbar-shell'
     | 'none';
+  showThemeSwitcher?: boolean;
+  showLanguageSwitcher?: boolean;
 }

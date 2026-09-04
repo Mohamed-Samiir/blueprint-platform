@@ -1,4 +1,4 @@
-<hlm-sidebar-wrapper [attr.dir]="dir()" [class.theme-brand-x]="brandX()">
+<hlm-sidebar-wrapper>
   <hlm-sidebar variant="sidebar" collapsible="icon" [side]="side()">
     <div hlmSidebarHeader>
       <div class="flex items-center gap-2 px-2 py-1.5">
@@ -27,39 +27,65 @@
         <div hlmSidebarGroupContent>
           <ul hlmSidebarMenu>
             @for (item of nav; track item.label) {
-              <li hlmSidebarMenuItem>
-                @if (item.children) {
-                  <button
-                    hlmSidebarMenuButton
-                    appSidebarItemFlyout
-                    [tooltip]="item.label"
-                    [hlmDropdownMenuTrigger]="itemMenu"
-                    [side]="side() === 'right' ? 'left' : 'right'"
-                    align="start"
-                  >
-                    <ng-icon [name]="item.icon" />
-                    <span>{{ item.label }}</span>
-                    <ng-icon
-                      name="lucideChevronRight"
-                      class="ms-auto size-4 group-data-[collapsible=icon]:hidden"
-                    />
-                  </button>
-                  <ng-template #itemMenu>
-                    <hlm-dropdown-menu class="min-w-44">
-                      <div hlmDropdownMenuLabel>{{ item.label }}</div>
-                      <hlm-dropdown-menu-separator />
-                      @for (child of item.children; track child.label) {
-                        <button hlmDropdownMenuItem>{{ child.label }}</button>
-                      }
-                    </hlm-dropdown-menu>
-                  </ng-template>
+              @if (item.children) {
+                @if (collapsed()) {
+                  <!-- Collapsed: icon only; hovering opens the children as a side flyout. -->
+                  <li hlmSidebarMenuItem>
+                    <button
+                      hlmSidebarMenuButton
+                      appSidebarItemFlyout
+                      [tooltip]="item.label"
+                      [hlmDropdownMenuTrigger]="itemMenu"
+                      [side]="side() === 'right' ? 'left' : 'right'"
+                      align="start"
+                    >
+                      <ng-icon [name]="item.icon" />
+                      <span>{{ item.label }}</span>
+                    </button>
+                    <ng-template #itemMenu>
+                      <hlm-dropdown-menu class="min-w-44">
+                        <div hlmDropdownMenuLabel>{{ item.label }}</div>
+                        <hlm-dropdown-menu-separator />
+                        @for (child of item.children; track child.label) {
+                          <button hlmDropdownMenuItem>{{ child.label }}</button>
+                        }
+                      </hlm-dropdown-menu>
+                    </ng-template>
+                  </li>
                 } @else {
+                  <!-- Expanded: ordinary in-place expand/collapse sub-list. -->
+                  <hlm-collapsible class="group/collapsible">
+                    <li hlmSidebarMenuItem>
+                      <button hlmCollapsibleTrigger hlmSidebarMenuButton class="w-full">
+                        <ng-icon [name]="item.icon" />
+                        <span>{{ item.label }}</span>
+                        <ng-icon
+                          name="lucideChevronRight"
+                          class="ms-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90"
+                        />
+                      </button>
+                      <hlm-collapsible-content>
+                        <ul hlmSidebarMenuSub>
+                          @for (child of item.children; track child.label) {
+                            <li hlmSidebarMenuSubItem>
+                              <button hlmSidebarMenuSubButton class="w-full">
+                                <span>{{ child.label }}</span>
+                              </button>
+                            </li>
+                          }
+                        </ul>
+                      </hlm-collapsible-content>
+                    </li>
+                  </hlm-collapsible>
+                }
+              } @else {
+                <li hlmSidebarMenuItem>
                   <button hlmSidebarMenuButton [isActive]="!!item.active" [tooltip]="item.label">
                     <ng-icon [name]="item.icon" />
                     <span>{{ item.label }}</span>
                   </button>
-                }
-              </li>
+                </li>
+              }
             }
           </ul>
         </div>
@@ -279,63 +305,6 @@
       </div>
     </div>
 
-    <div hlmSidebarFooter>
-      <ul hlmSidebarMenu>
-        <li hlmSidebarMenuItem>
-          <button
-            hlmSidebarMenuButton
-            size="lg"
-            [tooltip]="user.name"
-            [hlmDropdownMenuTrigger]="accountMenu"
-            side="top"
-            align="end"
-          >
-            <hlm-avatar class="size-8 rounded-lg">
-              <span hlmAvatarFallback>{{ user.initials }}</span>
-            </hlm-avatar>
-            <div class="grid flex-1 text-start text-sm leading-tight">
-              <span class="truncate font-semibold">{{ user.name }}</span>
-              <span class="truncate text-xs">{{ user.email }}</span>
-            </div>
-            <ng-icon name="lucideChevronsUpDown" class="ms-auto size-4" />
-          </button>
-          <ng-template #accountMenu>
-            <hlm-dropdown-menu class="w-56">
-              <div hlmDropdownMenuLabel class="font-normal">
-                <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                  <hlm-avatar class="size-8 rounded-lg">
-                    <span hlmAvatarFallback>{{ user.initials }}</span>
-                  </hlm-avatar>
-                  <div class="grid flex-1 text-start text-sm leading-tight">
-                    <span class="truncate font-semibold">{{ user.name }}</span>
-                    <span class="truncate text-xs">{{ user.email }}</span>
-                  </div>
-                </div>
-              </div>
-              <hlm-dropdown-menu-separator />
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideBadgeCheck" />
-                Account
-              </button>
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideCreditCard" />
-                Billing
-              </button>
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideBell" />
-                Notifications
-              </button>
-              <hlm-dropdown-menu-separator />
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideLogOut" />
-                Sign out
-              </button>
-            </hlm-dropdown-menu>
-          </ng-template>
-        </li>
-      </ul>
-    </div>
-
     <button hlmSidebarRail></button>
   </hlm-sidebar>
 
@@ -349,39 +318,9 @@
       <button hlmSidebarTrigger></button>
       <span class="text-sm font-medium">Topbar shell</span>
 
-      <div class="ms-auto flex items-center gap-1">
-        <button hlmBtn variant="ghost" size="sm" [hlmDropdownMenuTrigger]="langMenu" align="end">
-          <ng-icon name="lucideLanguages" class="size-4" />
-          <span>{{ lang() === 'ar' ? 'العربية' : 'English' }}</span>
-        </button>
-        <ng-template #langMenu>
-          <hlm-dropdown-menu class="w-40">
-            <button hlmDropdownMenuItem (click)="setLang('en')">
-              <span>English</span>
-              @if (lang() === 'en') {
-                <ng-icon name="lucideCheck" class="ms-auto size-4" />
-              }
-            </button>
-            <button hlmDropdownMenuItem (click)="setLang('ar')">
-              <span>العربية</span>
-              @if (lang() === 'ar') {
-                <ng-icon name="lucideCheck" class="ms-auto size-4" />
-              }
-            </button>
-          </hlm-dropdown-menu>
-        </ng-template>
-
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          type="button"
-          (click)="toggleTheme()"
-          [attr.aria-label]="brandX() ? 'Switch to default palette' : 'Switch to Brand X palette'"
-        >
-          <ng-icon [name]="brandX() ? 'lucideSun' : 'lucidePalette'" class="size-4" />
-        </button>
-      </div>
+      <!-- topbar-shell puts the account menu (and its switchers) in the top bar,
+           not the sidebar footer. -->
+      <app-user-menu class="ms-auto w-auto max-w-64" />
     </header>
 
     <div class="flex-1 p-6">

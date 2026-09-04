@@ -1,0 +1,13 @@
+// Brand-X — DARK-mode brand override scaffold.
+//
+// Ships EMPTY on purpose, parallel to `_palette-brand-x.scss`. Holds a generated
+// project's dark-mode-specific brand overrides (a brand's dark primary is often
+// not just its light primary reused). Emitted under the compound selector
+// `.dark.theme-brand-x`, which outranks plain `.dark` by specificity: keys
+// defined here win in brand-x dark mode, keys left undefined fall through to
+// `_palette-dark.scss`.
+//
+// Verified 2026-08-29 (Task 2.5): temporarily setting `'primary': #ff0000` here
+// emitted exactly `.dark.theme-brand-x { --primary: #ff0000; }` and nothing else;
+// every other dark var stayed as `_palette-dark.scss` defines it.
+$palette-brand-x-dark: ();

@@ -1,23 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Directionality } from '@angular/cdk/bidi';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideBadgeCheck,
-  lucideBell,
   lucideBookOpen,
+  lucideChartPie,
   lucideChevronDown,
   lucideChevronRight,
-  lucideChevronsUpDown,
-  lucideChartPie,
-  lucideCreditCard,
   lucideEllipsis,
   lucideFrame,
   lucideHouse,
   lucideInbox,
   lucideLifeBuoy,
-  lucideLogOut,
   lucideMap,
   lucidePlus,
   lucideSend,
@@ -25,8 +18,9 @@ import {
 } from '@ng-icons/lucide';
 import { HlmSidebarImports } from '@blueprint-platform/ui/sidebar';
 import { HlmDropdownMenuImports } from '@blueprint-platform/ui/dropdown-menu';
-import { HlmAvatarImports } from '@blueprint-platform/ui/avatar';
 import { HlmCollapsibleImports } from '@blueprint-platform/ui/collapsible';
+import { UserMenu } from '../../shared/ui/user-menu/user-menu';
+import { LanguageService } from '../../core/language/language.service';
 
 /**
  * Layout shell for spartan sidebar `variant="floating"` (the sidebar sits in a
@@ -41,8 +35,8 @@ import { HlmCollapsibleImports } from '@blueprint-platform/ui/collapsible';
     NgIcon,
     HlmSidebarImports,
     HlmDropdownMenuImports,
-    HlmAvatarImports,
     HlmCollapsibleImports,
+    UserMenu,
   ],
   providers: [
     provideIcons({
@@ -59,25 +53,17 @@ import { HlmCollapsibleImports } from '@blueprint-platform/ui/collapsible';
       lucideSquareTerminal,
       lucideChevronDown,
       lucideChevronRight,
-      lucideChevronsUpDown,
-      lucideBadgeCheck,
-      lucideCreditCard,
-      lucideBell,
-      lucideLogOut,
     }),
   ],
   templateUrl: './floating-shell.html',
   styleUrl: './floating-shell.scss',
 })
 export class FloatingShell {
-  private readonly _dir = inject(Directionality);
+  private readonly _lang = inject(LanguageService);
   /** spartan's `side` is a physical anchor and does not auto-flip under RTL. */
-  protected readonly direction = toSignal(this._dir.change, { initialValue: this._dir.value });
   protected readonly side = computed<'left' | 'right'>(() =>
-    this.direction() === 'rtl' ? 'right' : 'left',
+    this._lang.dir() === 'rtl' ? 'right' : 'left',
   );
-
-  protected readonly user = { name: 'Dev User', email: 'dev@local', initials: 'DU' };
 
   protected readonly projects = [
     { name: 'Design Engineering', icon: 'lucideFrame', info: 24 },

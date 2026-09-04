@@ -10,10 +10,90 @@ import { applicationGenerator } from '@nx/angular/generators';
 import { Project } from 'ts-morph';
 import { patchAppConfig } from './lib/patch-app-config';
 import { patchAppRoutes } from './lib/patch-app-routes';
+import { patchAppComponent } from './lib/patch-app-component';
 import { PresetGeneratorSchema } from './schema';
 // import * as compatibility from '../../../compatibility.json';
-import { readdirSync, readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
+
+/**
+ * The starter UI kit `preset` ships: `utils`, every form control, and the
+ * overlay ("popup") family. Transitive in-kit deps (`calendar`, `separator`, …)
+ * are pulled in automatically by the `ui` generator. Everything else is added
+ * on demand later via `nx g @blueprint-platform/components:ui <name>`.
+ */
+const STARTER_UI = [
+  'utils',
+  // form controls
+  'button',
+  'checkbox',
+  'input',
+  'input-group',
+  'input-otp',
+  'label',
+  'field',
+  'native-select',
+  'radio-group',
+  'select',
+  'slider',
+  'switch',
+  'textarea',
+  'toggle',
+  'toggle-group',
+  'combobox',
+  'autocomplete',
+  'date-picker',
+  // overlay / popup family
+  'popover',
+  'dialog',
+  'sheet',
+  'drawer',
+  'tooltip',
+  'hover-card',
+  'dropdown-menu',
+  'context-menu',
+  'alert-dialog',
+];
+
+/** The account-menu family has no barrel and is always added alongside a layout. */
+const LAYOUT_UI_EXTRAS = ['user-menu', 'theme-switcher', 'language-switcher'];
+
+type UiGenerator = (
+  tree: Tree,
+  options: {
+    components?: string;
+    all?: boolean;
+    project?: string;
+    skipFormat?: boolean;
+    skipInstall?: boolean;
+  },
+) => Promise<unknown> | unknown;
+
+/** The single `ui` generator from the components pillar (installed as a dep). */
+function loadUiGenerator(): UiGenerator {
+  try {
+    return require('@blueprint-platform/components/generators/ui').default;
+  } catch (e) {
+    throw new Error(
+      '@blueprint-platform/components is required by the preset but could not be resolved. ' +
+        `Ensure it is installed at a version compatible with this foundation. (${(e as Error).message})`,
+    );
+  }
+}
+
+/** `@blueprint-platform/ui/<name>` specifiers referenced by a layout shell's own source. */
+function layoutShellUiImports(layout: string): string[] {
+  const dir = join(__dirname, 'files/layout', layout);
+  const names = new Set<string>();
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.ts')) continue;
+    const src = readFileSync(join(dir, file), 'utf-8');
+    for (const m of src.matchAll(/@blueprint-platform\/ui\/([a-z0-9-]+)/g)) {
+      names.add(m[1]);
+    }
+  }
+  return [...names];
+}
 
 export default async function (tree: Tree, options: PresetGeneratorSchema) {
   const appRoot = '.';
@@ -21,9 +101,12 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
   const rtl = options.rtl ?? false;
   const labelPosition = options.labelPosition ?? 'floating';
   const layout = options.layout ?? 'none';
+  const showThemeSwitcher = options.showThemeSwitcher ?? true;
+  const showLanguageSwitcher = options.showLanguageSwitcher ?? true;
   const compatibility = JSON.parse(
     readFileSync(join(__dirname, '../../../compatibility.json'), 'utf-8'),
   );
+  const uiGenerator = loadUiGenerator();
 
   await applicationGenerator(tree, {
     name: options.name,
@@ -37,22 +120,17 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
   updateJson(tree, 'package.json', (json) => {
     json.dependencies ??= {};
     json.devDependencies ??= {};
+    // Base runtime deps every generated project needs regardless of which UI
+    // components ship. The spartan / cva / clsx / ng-icons / embla / scrollbar
+    // deps are added by the `ui` generator for exactly the components it copies.
     json.dependencies['@angular/cdk'] = '^22.0.0';
-    json.dependencies['@spartan-ng/brain'] = '^1.0.0';
-    json.dependencies['class-variance-authority'] = '^0.7.0';
-    json.dependencies['clsx'] = '^2.1.0';
-    json.dependencies['tailwind-merge'] = '^2.5.0';
-    json.dependencies['@ng-icons/core'] = '^32.0.0';
-    json.dependencies['@ng-icons/lucide'] = '^32.0.0';
-    json.dependencies['embla-carousel'] = '^8.0.0';
-    json.dependencies['embla-carousel-angular'] = '^22.0.0';
-    json.dependencies['ngx-scrollbar'] = '^19.1.0';
     json.devDependencies['tailwindcss'] = '^4.0.0';
     json.devDependencies['@tailwindcss/postcss'] = '^4.0.0';
     json.devDependencies['postcss'] = '^8.4.0';
-    //TODO: Re-enable these once we have a way to determine the correct versions of these packages to install
-    // json.devDependencies['@blueprint-platform/components'] =
-    //   compatibility.components;
+    // The `ui` generator lives here — kept as a devDependency so the project can
+    // add more components later (`nx g @blueprint-platform/components:ui <name>`).
+    json.devDependencies['@blueprint-platform/components'] = compatibility.components;
+    //TODO: Re-enable once we have a way to determine compatible versions.
     // json.devDependencies['@blueprint-platform/modules'] = compatibility.modules;
     return json;
   });
@@ -72,31 +150,31 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
     tree,
     joinPathFragments(__dirname, 'files/config'),
     `${appRoot}/src/app/core/config`,
-    { rtl, labelPosition, palette },
+    { rtl, labelPosition, palette, showThemeSwitcher, showLanguageSwitcher },
   );
-  generateFiles(
-    tree,
-    joinPathFragments(__dirname, 'files/shared/ui'),
-    `${appRoot}/src/app/shared/ui`,
-    {},
-  );
-  const uiComponentsDir = joinPathFragments(__dirname, 'files/shared/ui');
-  const uiComponentNames = readdirSync(uiComponentsDir);
-
-  updateJson(tree, 'tsconfig.json', (json) => {
-    json.compilerOptions.paths ??= {};
-    for (const name of uiComponentNames) {
-      json.compilerOptions.paths[`@blueprint-platform/ui/${name}`] = [
-        `./src/app/shared/ui/${name}/src/index.ts`,
-      ];
-    }
-    return json;
+  // Starter UI kit — delegated to the components pillar's `ui` generator, which
+  // copies each component + its in-kit deps, writes the `@blueprint-platform/ui/*`
+  // tsconfig paths, and adds the npm deps that set needs.
+  await uiGenerator(tree, {
+    components: STARTER_UI.join(','),
+    skipFormat: true,
+    skipInstall: true,
   });
+
   generateFiles(
     tree,
     joinPathFragments(__dirname, 'files/app'),
     `${appRoot}/src/app`,
     {},
+  );
+
+  // Starter screen — rendered directly by `app.ts` for `layout: 'none'`, or as
+  // the shell's index route for a layout (see `patchAppComponent` / `patchAppRoutes`).
+  generateFiles(
+    tree,
+    joinPathFragments(__dirname, 'files/welcome'),
+    `${appRoot}/src/app`,
+    { name: options.name },
   );
 
   for (const dir of ['shared/components', 'features', 'layout', 'global']) {
@@ -106,6 +184,22 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
   patchAppConfig(tree, appRoot, { palette, rtl, labelPosition });
 
   if (layout !== 'none') {
+    // The theme / language services back the switchers rendered inside the
+    // shell's `<app-user-menu>`; without layout chrome they have nowhere to be
+    // used, so they are only emitted alongside a shell.
+    generateFiles(
+      tree,
+      joinPathFragments(__dirname, 'files/theme'),
+      `${appRoot}/src/app/core/theme`,
+      {},
+    );
+    generateFiles(
+      tree,
+      joinPathFragments(__dirname, 'files/language'),
+      `${appRoot}/src/app/core/language`,
+      {},
+    );
+
     generateFiles(
       tree,
       joinPathFragments(__dirname, `files/layout/${layout}`),
@@ -142,12 +236,26 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
       }
     }
 
-    // The UI pieces the shells import (`shared/ui/sidebar`, `dropdown-menu`,
-    // `avatar`, `collapsible`, `button`, …) are already copied unconditionally
-    // by the `files/shared/ui` generateFiles call above.
+    // The UI pieces the selected shell imports (`sidebar`, `dropdown-menu`,
+    // `collapsible`, …) plus the account-menu family — added via the same `ui`
+    // generator, which resolves their in-kit deps and npm deps. Anything already
+    // in the starter set is skipped.
+    await uiGenerator(tree, {
+      components: [...layoutShellUiImports(layout), ...LAYOUT_UI_EXTRAS].join(','),
+      skipFormat: true,
+      skipInstall: true,
+    });
 
     patchAppRoutes(tree, { layout });
   }
+
+  // Swap the Nx starter component for `<app-welcome />` (layout none) or
+  // `<router-outlet />` (layout selected) in `app.ts` / `app.html`.
+  patchAppComponent(tree, appRoot, { layout });
+
+  const installedUiComponents = tree
+    .children(`${appRoot}/src/app/shared/ui`)
+    .sort();
 
   tree.write(
     `${appRoot}/.blueprint/manifest.json`,
@@ -160,7 +268,9 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
         rtl,
         labelPosition,
         layout,
-        components: [],
+        showThemeSwitcher,
+        showLanguageSwitcher,
+        components: installedUiComponents,
         modules: [],
         template: null,
       },

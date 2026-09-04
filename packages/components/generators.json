@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "@blueprint-platform/components",
+  "version": "0.0.1",
+  "generators": {
+    "ui": {
+      "factory": "./dist/generators/ui/ui",
+      "schema": "./dist/generators/ui/schema.json",
+      "description": "Add spartan-derived UI components (and their dependencies) into an existing Blueprint project."
+    }
+  }
+}

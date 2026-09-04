@@ -37,7 +37,7 @@ export function patchAppRoutes(tree: Tree, options: { layout: string }) {
   // Preserve whatever is currently between the brackets — the
   // "Feature routes are added here automatically…" comment and any
   // entries a template revision might add later — by moving it wholesale
-  // into the new `children` array.
+  // into the new `children` array, after the welcome index route.
   const existing = arrayLiteral.getText().slice(1, -1);
 
   arrayLiteral.replaceWithText(
@@ -46,7 +46,13 @@ export function patchAppRoutes(tree: Tree, options: { layout: string }) {
     path: '',
     loadComponent: () =>
       import('./layout/${shell}/${shell}').then((m) => m.${className}),
-    children: [${existing}],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./welcome').then((m) => m.Welcome),
+      },
+      ${existing}
+    ],
   },
 ]`,
   );

@@ -6,12 +6,16 @@ export interface BlueprintConfig {
   palette: string;
   rtl: boolean;
   labelPosition: LabelPosition;
+  showThemeSwitcher: boolean;
+  showLanguageSwitcher: boolean;
 }
 
 export const DEFAULT_BLUEPRINT_CONFIG: BlueprintConfig = {
   palette: '<%= palette %>',
   rtl: <%= rtl %>,
   labelPosition: '<%= labelPosition %>',
+  showThemeSwitcher: <%= showThemeSwitcher %>,
+  showLanguageSwitcher: <%= showLanguageSwitcher %>,
 };
 
 export const BLUEPRINT_CONFIG = new InjectionToken<BlueprintConfig>('BLUEPRINT_CONFIG');

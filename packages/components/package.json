@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/components",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },
@@ -8,8 +8,21 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "generators": "./generators.json",
+  "files": [
+    "dist",
+    "generators.json",
+    "README.md"
+  ],
   "exports": {
     "./package.json": "./package.json",
+    "./generators.json": "./generators.json",
+    "./generators/ui": {
+      "@blueprint-platform/source": "./src/generators/ui/ui.ts",
+      "types": "./dist/generators/ui/ui.d.ts",
+      "require": "./dist/generators/ui/ui.js",
+      "default": "./dist/generators/ui/ui.js"
+    },
     ".": {
       "@blueprint-platform/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
@@ -40,6 +53,16 @@
               "input": "./packages/components/src",
               "glob": "**/*.d.ts",
               "output": "."
+            },
+            {
+              "input": "./packages/components/src/generators/ui",
+              "glob": "schema.json",
+              "output": "./generators/ui"
+            },
+            {
+              "input": "./packages/components/src/generators/ui/files/shared/ui",
+              "glob": "**/*.ts",
+              "output": "./generators/ui/files/shared/ui"
             }
           ]
         }
@@ -47,6 +70,7 @@
     }
   },
   "dependencies": {
+    "@nx/devkit": "23.1.1",
     "tslib": "^2.3.0"
   }
 }

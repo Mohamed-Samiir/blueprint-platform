@@ -232,60 +232,7 @@
     </div>
 
     <div hlmSidebarFooter>
-      <ul hlmSidebarMenu>
-        <li hlmSidebarMenuItem>
-          <button
-            hlmSidebarMenuButton
-            size="lg"
-            [tooltip]="user.name"
-            [hlmDropdownMenuTrigger]="accountMenu"
-            side="top"
-            align="end"
-          >
-            <hlm-avatar class="size-8 rounded-lg">
-              <span hlmAvatarFallback>{{ user.initials }}</span>
-            </hlm-avatar>
-            <div class="grid flex-1 text-start text-sm leading-tight">
-              <span class="truncate font-semibold">{{ user.name }}</span>
-              <span class="truncate text-xs">{{ user.email }}</span>
-            </div>
-            <ng-icon name="lucideChevronsUpDown" class="ms-auto size-4" />
-          </button>
-          <ng-template #accountMenu>
-            <hlm-dropdown-menu class="w-56">
-              <div hlmDropdownMenuLabel class="font-normal">
-                <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                  <hlm-avatar class="size-8 rounded-lg">
-                    <span hlmAvatarFallback>{{ user.initials }}</span>
-                  </hlm-avatar>
-                  <div class="grid flex-1 text-start text-sm leading-tight">
-                    <span class="truncate font-semibold">{{ user.name }}</span>
-                    <span class="truncate text-xs">{{ user.email }}</span>
-                  </div>
-                </div>
-              </div>
-              <hlm-dropdown-menu-separator />
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideBadgeCheck" />
-                Account
-              </button>
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideCreditCard" />
-                Billing
-              </button>
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideBell" />
-                Notifications
-              </button>
-              <hlm-dropdown-menu-separator />
-              <button hlmDropdownMenuItem>
-                <ng-icon name="lucideLogOut" />
-                Sign out
-              </button>
-            </hlm-dropdown-menu>
-          </ng-template>
-        </li>
-      </ul>
+      <app-user-menu />
     </div>
 
     <button hlmSidebarRail></button>

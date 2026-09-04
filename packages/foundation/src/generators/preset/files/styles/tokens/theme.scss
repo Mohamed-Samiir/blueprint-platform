@@ -1,9 +1,9 @@
-@use './tokens/palette-default' as default-palette;
-@use './tokens/palette-dark' as dark-palette;
-@use './tokens/palette-brand-x' as brand-x-palette;
-@use './tokens/palette-brand-x-dark' as brand-x-dark-palette;
-@use './tokens/scale' as scale;
-@use './tokens/emit';
+@use './palette-default' as default-palette;
+@use './palette-dark' as dark-palette;
+@use './palette-brand-x' as brand-x-palette;
+@use './palette-brand-x-dark' as brand-x-dark-palette;
+@use './scale' as scale;
+@use './emit';
 
 :root {
   --spacing: #{scale.$spacing-base};

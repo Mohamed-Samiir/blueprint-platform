@@ -36,6 +36,14 @@
         "none"
       ],
       "default": "none"
+    },
+    "showThemeSwitcher": {
+      "type": "boolean",
+      "default": true
+    },
+    "showLanguageSwitcher": {
+      "type": "boolean",
+      "default": true
     }
   },
   "required": [

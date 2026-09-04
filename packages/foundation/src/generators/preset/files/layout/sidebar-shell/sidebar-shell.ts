@@ -1,18 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Directionality } from '@angular/cdk/bidi';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideBadgeCheck,
-  lucideBell,
   lucideBookOpen,
   lucideChartBar,
   lucideChartPie,
   lucideChevronDown,
   lucideChevronRight,
-  lucideChevronsUpDown,
-  lucideCreditCard,
   lucideEllipsis,
   lucideFolder,
   lucideFrame,
@@ -20,18 +14,18 @@ import {
   lucideInbox,
   lucideLayoutDashboard,
   lucideLifeBuoy,
-  lucideLogOut,
   lucideMap,
   lucidePlus,
   lucideSend,
   lucideSettings,
   lucideSquareTerminal,
 } from '@ng-icons/lucide';
-import { HlmSidebarImports } from '@blueprint-platform/ui/sidebar';
+import { HlmSidebarImports, HlmSidebarService } from '@blueprint-platform/ui/sidebar';
 import { HlmDropdownMenuImports } from '@blueprint-platform/ui/dropdown-menu';
-import { HlmAvatarImports } from '@blueprint-platform/ui/avatar';
 import { HlmCollapsibleImports } from '@blueprint-platform/ui/collapsible';
 import { SidebarItemFlyout } from '../sidebar-item-flyout';
+import { UserMenu } from '../../shared/ui/user-menu/user-menu';
+import { LanguageService } from '../../core/language/language.service';
 
 interface NavItem {
   label: string;
@@ -45,9 +39,9 @@ interface NavItem {
  * full-height sidebar). Deliberately a standalone copy — no shared base class
  * with the floating / inset shells, so a generated project can edit one freely.
  *
- * This shell also demonstrates `collapsible="icon"` (M4): collapsed, the menu
- * icons stay visible and hovering an item with children opens its content as a
- * dropdown flyout to the side (see `SidebarItemFlyout`).
+ * Demonstrates `collapsible="icon"`: collapsed, the menu icons stay visible and
+ * an item with children opens its content as a dropdown flyout on hover
+ * (`SidebarItemFlyout`); expanded, the same item is an inline expandable list.
  */
 @Component({
   selector: 'app-sidebar-shell',
@@ -57,9 +51,9 @@ interface NavItem {
     NgIcon,
     HlmSidebarImports,
     HlmDropdownMenuImports,
-    HlmAvatarImports,
     HlmCollapsibleImports,
     SidebarItemFlyout,
+    UserMenu,
   ],
   providers: [
     provideIcons({
@@ -80,22 +74,22 @@ interface NavItem {
       lucideSquareTerminal,
       lucideChevronDown,
       lucideChevronRight,
-      lucideChevronsUpDown,
-      lucideBadgeCheck,
-      lucideCreditCard,
-      lucideBell,
-      lucideLogOut,
     }),
   ],
   templateUrl: './sidebar-shell.html',
   styleUrl: './sidebar-shell.scss',
 })
 export class SidebarShell {
-  private readonly _dir = inject(Directionality);
+  private readonly _lang = inject(LanguageService);
   /** spartan's `side` is a physical anchor and does not auto-flip under RTL. */
-  protected readonly direction = toSignal(this._dir.change, { initialValue: this._dir.value });
   protected readonly side = computed<'left' | 'right'>(() =>
-    this.direction() === 'rtl' ? 'right' : 'left',
+    this._lang.dir() === 'rtl' ? 'right' : 'left',
+  );
+
+  /** Read by the template to switch flyout vs. inline rendering (Task 7). */
+  protected readonly sidebar = inject(HlmSidebarService);
+  protected readonly collapsed = computed(
+    () => this.sidebar.state() === 'collapsed' && !this.sidebar.isMobile(),
   );
 
   protected readonly nav: NavItem[] = [
@@ -112,8 +106,6 @@ export class SidebarShell {
     { label: 'Reports', icon: 'lucideChartBar' },
     { label: 'Settings', icon: 'lucideSettings' },
   ];
-
-  protected readonly user = { name: 'Dev User', email: 'dev@local', initials: 'DU' };
 
   protected readonly projects = [
     { name: 'Design Engineering', icon: 'lucideFrame', info: 24 },
