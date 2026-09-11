@@ -1,0 +1,31 @@
+import { defineConfig } from 'orval';
+import { environment } from './src/environments/environment';
+
+// Same value the `API_URL` token resolves at runtime — Orval runs in Node and
+// cannot read the Angular token, so it reads the plain `environment` module.
+// `ORVAL_API_URL` lets you point one generation run at another backend without
+// editing `environment.ts`.
+const apiOrigin = process.env.ORVAL_API_URL || environment.apiUrl;
+
+export default defineConfig({
+  api: {
+    input: {
+      // Adjust if your backend serves its OpenAPI document elsewhere.
+      target: `${apiOrigin}/swagger/v1/swagger.json`,
+      validation: true,
+    },
+    output: {
+      target: './src/app/core/api',
+      client: 'angular',
+      mode: 'tags-split',
+      override: {
+        angular: {
+          provideIn: 'root',
+        },
+      },
+    },
+    hooks: {
+      afterAllFilesWrite: 'prettier --write',
+    },
+  },
+});

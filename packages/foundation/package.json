@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/foundation",
-  "version": "0.1.16",
+  "version": "0.1.26",
   "publishConfig": {
     "access": "public"
   },
@@ -18,6 +18,12 @@
   "exports": {
     "./package.json": "./package.json",
     "./generators.json": "./generators.json",
+    "./generators/layout": {
+      "@blueprint-platform/source": "./src/generators/layout/layout.ts",
+      "types": "./dist/generators/layout/layout.d.ts",
+      "require": "./dist/generators/layout/layout.js",
+      "default": "./dist/generators/layout/layout.js"
+    },
     ".": {
       "@blueprint-platform/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
@@ -74,6 +80,16 @@
               "glob": "**/*.ts",
               "output": "./generators/preset/files/welcome"
             },
+            {
+              "input": "./packages/foundation/src/generators/preset/files/environments",
+              "glob": "**/*.ts",
+              "output": "./generators/preset/files/environments"
+            },
+            {
+              "input": "./packages/foundation/src/generators/preset/files/core-api",
+              "glob": "**/*.ts",
+              "output": "./generators/preset/files/core-api"
+            },
             "./packages/foundation/compatibility.json"
           ]
         }
@@ -85,6 +101,7 @@
     "tslib": "^2.3.0",
     "@nx/angular": "23.1.1",
     "ts-morph": "^28.0.0",
-    "@blueprint-platform/components": "^0.1.1"
+    "@blueprint-platform/components": "^0.1.3",
+    "@blueprint-platform/generator-kit": "^0.1.0"
   }
 }

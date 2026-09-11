@@ -1,0 +1,27 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "loading": "Loading…",
+    "search": "Search"
+  },
+  "account": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "theme": {
+    "darkMode": "Dark mode"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "welcome": {
+    "badge": "Built with Blueprint",
+    "title": "Welcome to {{name}}",
+    "lead": "This project was scaffolded with Blueprint — a zoneless, signal-driven Angular starter with a headless-first component system."
+  }
+}

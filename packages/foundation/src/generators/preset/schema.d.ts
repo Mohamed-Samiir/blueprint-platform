@@ -11,4 +11,9 @@ export interface PresetGeneratorSchema {
     | 'none';
   showThemeSwitcher?: boolean;
   showLanguageSwitcher?: boolean;
+  /** Language codes to scaffold i18n for (must exist in LANGUAGE_REGISTRY); first is the default. */
+  languages?: string[];
+  /** API origin only (scheme + host + port, no path). */
+  apiUrl?: string;
+  appVersion?: string;
 }

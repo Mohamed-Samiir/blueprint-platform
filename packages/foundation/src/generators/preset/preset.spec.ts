@@ -1,7 +1,7 @@
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
 
-import { presetGenerator } from './preset';
+import presetGenerator from './preset';
 import { PresetGeneratorSchema } from './schema';
 
 describe('preset generator', () => {

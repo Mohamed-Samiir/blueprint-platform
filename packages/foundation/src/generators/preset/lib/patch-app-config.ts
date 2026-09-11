@@ -1,46 +1,58 @@
 import { Tree, updateJson } from '@nx/devkit';
-import { Project, SyntaxKind } from 'ts-morph';
+import { appendProvider } from '@blueprint-platform/generator-kit';
 
 export function patchAppConfig(
   tree: Tree,
   appRoot: string,
-  options: { palette: string; rtl: boolean; labelPosition: string },
+  options: {
+    palette: string;
+    rtl: boolean;
+    labelPosition: string;
+    /** Whether `core/language/language.service.ts` will exist — either variant. */
+    hasLanguageService: boolean;
+  },
 ) {
   const path = `${appRoot}/src/app/app.config.ts`;
-  const source = tree.read(path, 'utf-8');
-  if (!source) return;
+  if (!tree.read(path, 'utf-8')) return;
 
-  const project = new Project({ useInMemoryFileSystem: true });
-  const file = project.createSourceFile(path, source);
-
-  file.addImportDeclaration({
-    namedImports: ['provideZonelessChangeDetection'],
-    moduleSpecifier: '@angular/core',
+  appendProvider(tree, appRoot, {
+    imports: [{ names: 'provideZonelessChangeDetection', from: '@angular/core' }],
+    providerExpression: 'provideZonelessChangeDetection()',
   });
-  file.addImportDeclaration({
-    namedImports: ['provideRouter'],
-    moduleSpecifier: '@angular/router',
+  appendProvider(tree, appRoot, {
+    imports: [
+      { names: 'provideRouter', from: '@angular/router' },
+      { names: 'routes', from: './app.routes' },
+    ],
+    providerExpression: 'provideRouter(routes)',
   });
-  file.addImportDeclaration({
-    namedImports: ['routes'],
-    moduleSpecifier: './app.routes',
-  });
-  file.addImportDeclaration({
-    namedImports: ['provideBlueprint'],
-    moduleSpecifier: './core/config/provide-blueprint',
+  appendProvider(tree, appRoot, {
+    imports: [
+      { names: ['provideHttpClient', 'withInterceptors'], from: '@angular/common/http' },
+      { names: 'apiInterceptor', from: './core/api.interceptor' },
+    ],
+    providerExpression: 'provideHttpClient(withInterceptors([apiInterceptor]))',
   });
 
-  const arrayLiteral = file
-    .getVariableDeclarationOrThrow('appConfig')
-    .getFirstDescendantByKindOrThrow(SyntaxKind.ArrayLiteralExpression);
+  // `LanguageService` doubles as the app's CDK `Directionality` so overlays stay
+  // in lock-step with a runtime direction change. Both the base and
+  // translate-augmented variants implement the same Directionality shape, so
+  // this is wired whenever either exists — a layout alone (base) or
+  // `showLanguageSwitcher` alone (translate, even with `layout: 'none'`).
+  if (options.hasLanguageService) {
+    appendProvider(tree, appRoot, {
+      imports: [
+        { names: 'Directionality', from: '@angular/cdk/bidi' },
+        { names: 'LanguageService', from: './core/language/language.service' },
+      ],
+      providerExpression: '{ provide: Directionality, useExisting: LanguageService }',
+    });
+  }
 
-  arrayLiteral.addElement('provideZonelessChangeDetection()');
-  arrayLiteral.addElement('provideRouter(routes)');
-  arrayLiteral.addElement(
-    `...provideBlueprint({ palette: '${options.palette}', rtl: ${options.rtl}, labelPosition: '${options.labelPosition}' })`,
-  );
-
-  tree.write(path, file.getFullText());
+  appendProvider(tree, appRoot, {
+    imports: [{ names: 'provideBlueprint', from: './core/config/provide-blueprint' }],
+    providerExpression: `...provideBlueprint({ palette: '${options.palette}', rtl: ${options.rtl}, labelPosition: '${options.labelPosition}' })`,
+  });
 
   // Nx-generated Angular apps have a per-project project.json, not a
   // single workspace-wide angular.json — the styles array lives at
@@ -49,6 +61,8 @@ export function patchAppConfig(
     json.targets.build.options.styles = [
       `${appRoot}/src/styles/theme.scss`,
       `${appRoot}/src/styles/tailwind-theme.css`,
+      // Nx's default global stylesheet — kept last so app-level overrides win.
+      `${appRoot}/src/styles.scss`,
     ];
     return json;
   });

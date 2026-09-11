@@ -44,6 +44,21 @@
     "showLanguageSwitcher": {
       "type": "boolean",
       "default": true
+    },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["en", "ar"],
+      "description": "Language codes to scaffold i18n for. Must exist in the generator's LANGUAGE_REGISTRY. First entry is the default/fallback."
+    },
+    "apiUrl": {
+      "type": "string",
+      "default": "",
+      "description": "API origin only (scheme + host + port, no path) — e.g. http://10.1.21.26:8100"
+    },
+    "appVersion": {
+      "type": "string",
+      "default": "0.1.0"
     }
   },
   "required": [

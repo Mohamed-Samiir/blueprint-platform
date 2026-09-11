@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/components",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "publishConfig": {
     "access": "public"
   },
@@ -71,6 +71,7 @@
   },
   "dependencies": {
     "@nx/devkit": "23.1.1",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "@blueprint-platform/generator-kit": "^0.1.0"
   }
 }

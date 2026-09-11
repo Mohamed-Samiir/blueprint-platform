@@ -1,0 +1,96 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="grid gap-6">
+  <header class="grid gap-1">
+    <h1 class="text-xl font-semibold tracking-tight">Sign in</h1>
+    <p class="text-muted-foreground text-sm">Welcome back. Enter your details to continue.</p>
+  </header>
+
+  @if (serverError()) {
+    <div hlmAlert variant="destructive" role="alert">
+      <span hlmAlertTitle>{{ serverError() }}</span>
+    </div>
+  }
+  @if (done()) {
+    <div hlmAlert role="status">
+      <span hlmAlertTitle>Signed in as {{ form.controls.email.value }}.</span>
+    </div>
+  }
+
+  <div class="grid gap-4">
+    <hlm-field>
+      <label hlmFieldLabel for="login-email">Email</label>
+      <input
+        hlmInput
+        id="login-email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        formControlName="email"
+      />
+      <hlm-field-error validator="required">Email is required.</hlm-field-error>
+      <hlm-field-error validator="email">Enter a valid email address.</hlm-field-error>
+    </hlm-field>
+
+    <hlm-field>
+      <label hlmFieldLabel for="login-password">Password</label>
+      <hlm-input-group>
+        <input
+          hlmInputGroupInput
+          id="login-password"
+          [type]="showPassword() ? 'text' : 'password'"
+          autocomplete="current-password"
+          formControlName="password"
+        />
+        <hlm-input-group-addon align="inline-end">
+          <button
+            hlmInputGroupButton
+            size="icon-xs"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" />
+          </button>
+        </hlm-input-group-addon>
+      </hlm-input-group>
+      <hlm-field-error validator="required">Password is required.</hlm-field-error>
+      <hlm-field-error validator="minlength"
+        >Password must be at least 8 characters.</hlm-field-error
+      >
+    </hlm-field>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+    <label class="flex items-center gap-2 text-sm select-none">
+      <hlm-checkbox formControlName="rememberMe" />
+      Remember me
+    </label>
+    <a hlmBtn variant="link" size="sm" routerLink="../forgot-password/email">Forgot password?</a>
+  </div>
+
+  <button hlmBtn type="submit" class="w-full" [disabled]="pending()">
+    @if (pending()) {
+      <hlm-spinner class="me-2" />
+    }
+    Sign in
+  </button>
+
+  <div class="grid gap-3">
+    <div class="flex items-center gap-3">
+      <span class="bg-border h-px flex-1"></span>
+      <span class="text-muted-foreground text-xs">or continue with</span>
+      <span class="bg-border h-px flex-1"></span>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <button type="button" hlmBtn variant="outline" (click)="socialLogin('google')">Google</button>
+      <button type="button" hlmBtn variant="outline" (click)="socialLogin('microsoft')">
+        Microsoft
+      </button>
+    </div>
+  </div>
+
+  <p class="text-muted-foreground text-center text-xs">
+    By continuing you agree to our
+    <button type="button" hlmBtn variant="link" size="sm" class="px-1" (click)="onTerms()">
+      Terms and Conditions</button
+    >.
+  </p>
+</form>

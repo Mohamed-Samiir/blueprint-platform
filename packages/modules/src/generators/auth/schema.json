@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "BlueprintModulesAuth",
+  "title": "Add the auth module",
+  "description": "Copy the auth module (core service/interceptor for the chosen strategy, storage seam, forms) into an existing project, add the chosen auth layout (via foundation:layout), and wire the `auth` route branch.",
+  "type": "object",
+  "properties": {
+    "authType": {
+      "type": "string",
+      "enum": ["jwt", "session"],
+      "description": "Which auth strategy's service + interceptor to copy. 'jwt' — access/refresh token pair, Authorization header, one-shot 401 refresh-and-retry. 'session' — opaque session id echoed as X-Session-Id, no refresh concept.",
+      "default": "jwt"
+    },
+    "storeType": {
+      "type": "string",
+      "enum": ["local", "memory"],
+      "description": "Where auth tokens live. 'local' — localStorage, survives reload, XSS-readable. 'memory' — in-memory only, recommended for production paired with a server-set HttpOnly refresh cookie.",
+      "default": "local"
+    },
+    "authLayout": {
+      "type": "string",
+      "enum": ["split", "centered"],
+      "description": "Which auth layout shell to add (foundation:layout's auth-split or auth-centered catalog entry). Distinct from foundation's own `layout` option — this picks the shell that wraps ONLY the auth route branch, not the main app shell.",
+      "default": "split"
+    }
+  },
+  "required": []
+}

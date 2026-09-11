@@ -5,6 +5,10 @@
 @use './tokens/scale' as scale;
 @use './tokens/emit';
 
+// Global class registry — hand-authored helper classes (e.g. `.bp-field--floating`).
+// Add project-wide classes there, not here.
+@use './utilities';
+
 :root {
   --spacing: #{scale.$spacing-base};
   --border-width: 1px;

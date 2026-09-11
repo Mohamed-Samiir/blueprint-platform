@@ -7,6 +7,7 @@ import {
   logger,
   updateJson,
 } from '@nx/devkit';
+import { registerUiPaths, appendToManifest } from '@blueprint-platform/generator-kit';
 import { UiGeneratorSchema } from './schema';
 import {
   FLAT_COMPONENTS,
@@ -69,18 +70,10 @@ export default async function uiGenerator(
 
   // tsconfig `paths` for the aliased components (the flat family has no barrel).
   const aliased = toAdd.filter((name) => !FLAT_COMPONENTS.includes(name));
-  if (aliased.length && tree.exists(`${project}/tsconfig.json`)) {
-    updateJson(tree, `${project}/tsconfig.json`, (json) => {
-      json.compilerOptions ??= {};
-      json.compilerOptions.paths ??= {};
-      for (const name of aliased) {
-        json.compilerOptions.paths[`@blueprint-platform/ui/${name}`] = [
-          `./src/app/shared/ui/${name}/src/index.ts`,
-        ];
-      }
-      return json;
-    });
-  }
+  registerUiPaths(tree, project, aliased, {
+    sourceDir: 'src/app/shared/ui',
+    aliasPrefix: '@blueprint-platform/ui',
+  });
 
   // npm deps the newly-added components pull in.
   const deps = npmDepsForComponents(toAdd);
@@ -95,13 +88,8 @@ export default async function uiGenerator(
   }
 
   // Record what the project now contains.
-  const manifestPath = `${project}/.blueprint/manifest.json`;
-  if (tree.exists(manifestPath)) {
-    updateJson(tree, manifestPath, (json) => {
-      const set = new Set<string>([...(json.components ?? []), ...toAdd]);
-      json.components = [...set].sort();
-      return json;
-    });
+  for (const name of toAdd) {
+    appendToManifest(tree, project, 'components', name);
   }
 
   // The switcher family imports services that only exist alongside a layout.

@@ -1,59 +1,93 @@
-import { DOCUMENT, Injectable, computed, effect, inject, signal } from '@angular/core';
-
-export type AppLanguage = 'en' | 'ar';
+import {
+  DOCUMENT,
+  EventEmitter,
+  Injectable,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import type { Direction, Directionality } from '@angular/cdk/bidi';
+import { LANGUAGE_REGISTRY } from './language-registry';
+import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from './available-languages';
 
 const LANG_KEY = 'bp-language';
 
 /**
- * Direction + current-language signal. **Scope: direction only** — this is not a
- * translation/i18n content system. Selecting `ar` sets `dir="rtl"` (and `lang`)
- * on `<html>`; it does not translate any UI text yet. A future i18n layer reads
- * `language()` from here.
+ * Direction-tracking runtime state, generalized for N languages. This is the
+ * BASE variant — generated whenever a layout is selected, same tier as
+ * `ThemeService`, with no `ngx-translate` dependency, because the layout
+ * shells inject `LanguageService` unconditionally for their own RTL/LTR side
+ * computation. When `showLanguageSwitcher` is also true, `preset.ts` writes
+ * the translate-augmented variant (`language.service.translate.ts`) over this
+ * file instead — same public shape, plus `ngx-translate` wiring.
  *
- * A signal-backed root service (not component-local state) so the switcher and
- * any later consumer share one value. Persisted to `localStorage`.
+ * - `current` is the active code; `dir` is looked up from
+ *   {@link LANGUAGE_REGISTRY} on every change — never a hardcoded "is it Arabic"
+ *   check, so any future registry language gets correct direction for free.
+ * - drives the `<html>` `lang` / `dir` attributes and persists the choice to
+ *   `localStorage`.
+ *
+ * Also stands in as the app's CDK {@link Directionality} (wired in
+ * `app.config.ts` via `{ provide: Directionality, useExisting: LanguageService }`
+ * whenever this file exists) — CDK's own `Directionality` samples document
+ * direction once at construction and never updates, so without this every
+ * overlay opened after a direction switch would be stamped with a stale `dir`.
  */
 @Injectable({ providedIn: 'root' })
-export class LanguageService {
+export class LanguageService
+  implements Pick<Directionality, 'value' | 'change'>
+{
   private readonly _root = inject(DOCUMENT).documentElement;
 
-  readonly language = signal<AppLanguage>(this._read());
-  readonly dir = computed<'ltr' | 'rtl'>(() => (this.language() === 'ar' ? 'rtl' : 'ltr'));
+  /** Languages this project was generated with. */
+  readonly available = AVAILABLE_LANGUAGES;
+
+  private readonly _code = signal<string>(this._initialCode());
+  /** Active language code. */
+  readonly current = this._code.asReadonly();
+  /** Active text direction — from the registry, for whatever the current code is. */
+  readonly dir = computed<Direction>(
+    () => (LANGUAGE_REGISTRY[this._code()] ?? LANGUAGE_REGISTRY[DEFAULT_LANGUAGE]).dir,
+  );
+
+  /** CDK `Directionality` contract. */
+  get value(): Direction {
+    return this.dir();
+  }
+  readonly change = new EventEmitter<Direction>();
+  private _lastDir: Direction | null = null;
 
   constructor() {
-    this._apply();
     effect(() => {
-      this.language();
-      this._apply();
+      const def =
+        LANGUAGE_REGISTRY[this._code()] ?? LANGUAGE_REGISTRY[DEFAULT_LANGUAGE];
+      this._root.setAttribute('lang', def.code);
+      this._root.setAttribute('dir', def.dir);
+      if (def.dir !== this._lastDir) {
+        this._lastDir = def.dir;
+        this.change.emit(def.dir);
+      }
     });
   }
 
-  set(language: AppLanguage): void {
-    this.language.set(language);
-  }
-
-  toggle(): void {
-    this.language.update((l) => (l === 'en' ? 'ar' : 'en'));
-  }
-
-  private _apply(): void {
-    const language = this.language();
-    this._root.setAttribute('lang', language);
-    this._root.setAttribute('dir', this.dir());
+  setLanguage(code: string): void {
+    if (!(code in LANGUAGE_REGISTRY)) return;
+    this._code.set(code);
     try {
-      localStorage.setItem(LANG_KEY, language);
+      localStorage.setItem(LANG_KEY, code);
     } catch {
       /* storage unavailable — no-op */
     }
   }
 
-  private _read(): AppLanguage {
+  private _initialCode(): string {
     try {
-      const raw = localStorage.getItem(LANG_KEY);
-      if (raw === 'ar' || raw === 'en') return raw;
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && this.available.some((l) => l.code === saved)) return saved;
     } catch {
       /* storage unavailable — fall through */
     }
-    return this._root.getAttribute('dir') === 'rtl' ? 'ar' : 'en';
+    return DEFAULT_LANGUAGE;
   }
 }

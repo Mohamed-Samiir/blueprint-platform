@@ -1,0 +1,27 @@
+{
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "delete": "حذف",
+    "loading": "جارٍ التحميل…",
+    "search": "بحث"
+  },
+  "account": {
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "theme": {
+    "darkMode": "الوضع الداكن"
+  },
+  "language": {
+    "label": "اللغة"
+  },
+  "welcome": {
+    "badge": "مبني باستخدام Blueprint",
+    "title": "مرحبًا بك في {{name}}",
+    "lead": "تم إنشاء هذا المشروع باستخدام Blueprint — نقطة انطلاق لتطبيقات Angular خالية من Zone ومبنية على الإشارات مع نظام مكوّنات headless-first."
+  }
+}

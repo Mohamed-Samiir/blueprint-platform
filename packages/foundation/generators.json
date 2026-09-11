@@ -5,6 +5,11 @@
       "schema": "./dist/generators/preset/schema.json",
       "description": "preset generator",
       "x-use-standalone-layout": true
+    },
+    "layout": {
+      "factory": "./dist/generators/layout/layout",
+      "schema": "./dist/generators/layout/schema.json",
+      "description": "Add one layout shell (from the same catalog `preset` uses) to an existing project"
     }
   }
 }

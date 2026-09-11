@@ -1,17 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { HlmButtonImports } from '@blueprint-platform/ui/button';
+import { HlmDropdownMenuImports } from '@blueprint-platform/ui/dropdown-menu';
 import { LanguageService } from '../../../core/language/language.service';
 
 /**
- * English / العربية toggle. Direction only — flips `dir` on `<html>` via
- * `LanguageService`; it does not translate UI text (that is a separate, larger
- * i18n concern). Pure and reusable — visibility is gated by the call site
- * (`BLUEPRINT_CONFIG.showLanguageSwitcher`), not here.
+ * Language picker — one item per language this project was generated with
+ * (`LanguageService.available`). Selecting one switches `ngx-translate` and,
+ * via the language registry, the document direction. Visibility is gated by the
+ * call site (`BLUEPRINT_CONFIG.showLanguageSwitcher`), not here.
  */
 @Component({
   selector: 'app-language-switcher',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HlmButtonImports],
+  imports: [HlmButtonImports, HlmDropdownMenuImports],
   template: `
     <div class="flex items-center gap-2 text-sm">
       <span>Language</span>
@@ -21,16 +22,31 @@ import { LanguageService } from '../../../core/language/language.service';
         size="sm"
         type="button"
         class="ms-auto"
-        (click)="lang.toggle()"
-        [attr.aria-label]="
-          'Switch language, currently ' + (lang.language() === 'ar' ? 'Arabic' : 'English')
-        "
+        [hlmDropdownMenuTrigger]="menu"
       >
-        {{ lang.language() === 'ar' ? 'العربية' : 'English' }}
+        {{ currentLabel() }}
       </button>
+      <ng-template #menu>
+        <hlm-dropdown-menu class="w-44">
+          @for (lang of languageService.available; track lang.code) {
+            <button
+              hlmDropdownMenuItem
+              (click)="languageService.setLanguage(lang.code)"
+            >
+              {{ lang.label }}
+            </button>
+          }
+        </hlm-dropdown-menu>
+      </ng-template>
     </div>
   `,
 })
 export class LanguageSwitcher {
-  protected readonly lang = inject(LanguageService);
+  protected readonly languageService = inject(LanguageService);
+  protected readonly currentLabel = computed(
+    () =>
+      this.languageService.available.find(
+        (l) => l.code === this.languageService.current(),
+      )?.label ?? '',
+  );
 }

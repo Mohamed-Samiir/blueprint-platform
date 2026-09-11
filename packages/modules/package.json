@@ -8,8 +8,15 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "generators": "./generators.json",
+  "files": [
+    "dist",
+    "generators.json",
+    "README.md"
+  ],
   "exports": {
     "./package.json": "./package.json",
+    "./generators.json": "./generators.json",
     ".": {
       "@blueprint-platform/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
@@ -40,6 +47,21 @@
               "input": "./packages/modules/src",
               "glob": "**/*.d.ts",
               "output": "."
+            },
+            {
+              "input": "./packages/modules/src/generators/auth",
+              "glob": "schema.json",
+              "output": "./generators/auth"
+            },
+            {
+              "input": "./packages/modules/src/generators/auth/files/core",
+              "glob": "**/*.ts",
+              "output": "./generators/auth/files/core"
+            },
+            {
+              "input": "./packages/modules/src/generators/auth/files/features",
+              "glob": "**/*.ts",
+              "output": "./generators/auth/files/features"
             }
           ]
         }
@@ -47,6 +69,10 @@
     }
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "@nx/devkit": "23.1.1",
+    "@blueprint-platform/foundation": "^0.1.26",
+    "@blueprint-platform/components": "^0.1.3",
+    "@blueprint-platform/generator-kit": "^0.1.1"
   }
 }

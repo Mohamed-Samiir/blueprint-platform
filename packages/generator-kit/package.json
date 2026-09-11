@@ -1,0 +1,58 @@
+{
+  "name": "@blueprint-platform/generator-kit",
+  "version": "0.1.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@blueprint-platform/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "options": {
+          "outputPath": "packages/generator-kit/dist",
+          "main": "packages/generator-kit/src/index.ts",
+          "tsConfig": "packages/generator-kit/tsconfig.lib.json",
+          "rootDir": "packages/generator-kit/src",
+          "generatePackageJson": false,
+          "assets": [
+            {
+              "input": "./packages/generator-kit/src",
+              "glob": "**/!(*.ts)",
+              "output": "."
+            },
+            {
+              "input": "./packages/generator-kit/src",
+              "glob": "**/*.d.ts",
+              "output": "."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@nx/devkit": "23.1.1",
+    "ts-morph": "^28.0.0",
+    "tslib": "^2.3.0"
+  }
+}

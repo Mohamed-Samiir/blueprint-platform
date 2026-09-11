@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "auth": {
+      "factory": "./dist/generators/auth/auth",
+      "schema": "./dist/generators/auth/schema.json",
+      "description": "Add the auth module (core service/interceptor, storage seam, forms, layout, routing) to an existing project"
+    }
+  }
+}

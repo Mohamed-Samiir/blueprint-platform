@@ -1,0 +1,29 @@
+/* You can add global styles to this file, and also import other style files */
+.bp-field--floating {
+  position: relative;
+
+  label {
+    position: absolute;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    transition:
+      top 0.15s ease,
+      transform 0.15s ease,
+      font-size 0.15s ease;
+    pointer-events: none;
+    background: var(--background);
+    padding: 0 4px;
+    width: auto;
+  }
+
+  input::placeholder {
+    color: transparent;
+  }
+
+  &:has(input:focus) label,
+  &:has(input:not(:placeholder-shown)) label {
+    top: 0;
+    transform: translateY(-50%) scale(0.85);
+    color: var(--primary);
+  }
+}

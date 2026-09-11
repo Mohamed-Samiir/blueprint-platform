@@ -55,6 +55,7 @@
   },
   "release": {
     "projects": [
+      "generator-kit",
       "foundation",
       "components",
       "modules",
