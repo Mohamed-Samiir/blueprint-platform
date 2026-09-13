@@ -5,9 +5,8 @@ import {
   formatFiles,
   updateJson,
 } from '@nx/devkit';
-import { readdirSync, readFileSync, statSync } from 'fs';
+import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
-import { Project } from 'ts-morph';
 import { wrapRoutesUnderLayout, appendToManifest } from '@blueprint-platform/generator-kit';
 import { loadUiGenerator } from '../shared/load-ui-generator';
 import { patchUserMenu } from '../preset/lib/patch-user-menu';
@@ -118,31 +117,6 @@ export default async function (tree: Tree, options: LayoutGeneratorSchema) {
   }
 
   generateFiles(tree, joinPathFragments(catalogDir, name), dest, {});
-
-  // `sidebar-item-flyout.ts` lives once at the catalog root and is shared (via a
-  // `../` import) by the shells that use it. Only one shell is copied here, so
-  // for the two that import it, drop a local copy beside the shell and repoint
-  // the import so the layout folder is self-contained — identical to what
-  // `preset.ts` did inline before this generator existed.
-  if (name === 'sidebar-shell' || name === 'topbar-shell') {
-    tree.write(
-      `${dest}/sidebar-item-flyout.ts`,
-      readFileSync(join(catalogDir, 'sidebar-item-flyout.ts'), 'utf-8'),
-    );
-
-    const shellPath = `${dest}/${name}.ts`;
-    const shellSource = tree.read(shellPath, 'utf-8');
-    if (shellSource) {
-      const project = new Project({ useInMemoryFileSystem: true });
-      const shellFile = project.createSourceFile(shellPath, shellSource);
-      shellFile
-        .getImportDeclaration(
-          (d) => d.getModuleSpecifierValue() === '../sidebar-item-flyout',
-        )
-        ?.setModuleSpecifier('./sidebar-item-flyout');
-      tree.write(shellPath, shellFile.getFullText());
-    }
-  }
 
   // Determine the real exported class name from the copied component file
   // rather than assuming a naming convention.

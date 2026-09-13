@@ -9,3 +9,5 @@ export {
   type LayoutBranchChild,
 } from './lib/add-layout-branch';
 export { appendChildRoutes } from './lib/append-child-routes';
+export { findExistingMainShell } from './lib/find-main-shell';
+export { appendNavItem } from './lib/append-nav-item';

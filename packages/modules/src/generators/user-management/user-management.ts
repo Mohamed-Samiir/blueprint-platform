@@ -1,7 +1,9 @@
 import { Tree, formatFiles, generateFiles, joinPathFragments, logger, readJson } from '@nx/devkit';
 import {
   appendChildRoutes,
+  appendNavItem,
   appendToManifest,
+  findExistingMainShell,
   LayoutBranchChild,
 } from '@blueprint-platform/generator-kit';
 import { loadUiGenerator } from '../shared/load-ui-generator';
@@ -110,6 +112,24 @@ export default async function (tree: Tree, options: UserManagementGeneratorSchem
   // interceptor, no guard), by design.
 
   appendToManifest(tree, appRoot, 'modules', 'user-management');
+
+  // Each module adds its own nav link, unconditionally, wherever it's run —
+  // not a separate composition step. `layout: 'none'` (no shell to inject
+  // into) is not an error, just nothing to do yet — see the
+  // `foundation:layout`-added-later limitation documented in CLAUDE.md.
+  const shell = findExistingMainShell(tree);
+  if (shell) {
+    appendNavItem(tree, shell.path, {
+      label: 'User Management',
+      routerLink: `/${routePrefix}`,
+      icon: 'lucideUsers',
+    });
+  } else {
+    logger.info(
+      'modules:user-management: no main app shell present yet (layout: none) — no nav link added. ' +
+        'Adding a shell later via `foundation:layout` will not retroactively add one either (a known, documented limitation).',
+    );
+  }
 
   await formatFiles(tree);
 }

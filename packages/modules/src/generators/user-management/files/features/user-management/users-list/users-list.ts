@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   inject,
   signal,
   viewChild,
@@ -14,6 +15,7 @@ import { HlmAvatarImports } from '@blueprint-platform/ui/avatar';
 import { HlmBadgeImports } from '@blueprint-platform/ui/badge';
 import { HlmButtonImports } from '@blueprint-platform/ui/button';
 import { HlmDropdownMenuImports } from '@blueprint-platform/ui/dropdown-menu';
+import { HlmPaginationImports } from '@blueprint-platform/ui/pagination';
 import { HlmTableImports } from '@blueprint-platform/ui/table';
 import type { ManagedUser } from '../../../core/user-management/models';
 import { UserService } from '../../../core/user-management/user.service';
@@ -40,6 +42,7 @@ import { DetailsUser } from '../details-user/details-user';
     HlmBadgeImports,
     HlmButtonImports,
     HlmDropdownMenuImports,
+    HlmPaginationImports,
     HlmTableImports,
     ChangeRoleDialog,
     DeactivateConfirm,
@@ -54,6 +57,20 @@ export class UsersList {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly users = signal<ManagedUser[]>([]);
+
+  /**
+   * Task 7: `hlm-table` has no built-in pagination — a separate, self-contained
+   * `hlm-numbered-pagination` component exists in the catalog though, so real
+   * pagination (the task's stated preference where available) is used here
+   * rather than a scroll container. Same approach as RBAC's `roles-list`.
+   */
+  protected readonly currentPage = signal(1);
+  protected readonly itemsPerPage = signal(10);
+  protected readonly pagedUsers = computed(() => {
+    const page = this.currentPage();
+    const size = this.itemsPerPage();
+    return this.users().slice((page - 1) * size, page * size);
+  });
 
   private readonly detailsDialog = viewChild.required<DetailsUser>('detailsDialog');
   private readonly deactivateDialog = viewChild.required<DeactivateConfirm>('deactivateDialog');

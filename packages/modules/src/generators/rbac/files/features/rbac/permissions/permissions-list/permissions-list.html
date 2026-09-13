@@ -1,4 +1,4 @@
-<div class="mx-auto grid w-full max-w-3xl gap-4 p-4 sm:p-6">
+<div class="grid w-full gap-4 px-4 py-3">
   <header class="flex flex-wrap items-center justify-between gap-3">
     <div class="grid gap-1">
       <h1 class="text-xl font-semibold tracking-tight">Permissions</h1>
@@ -27,7 +27,15 @@
     </p>
   }
 
-  <div hlmAccordion type="multiple" class="rounded-lg border">
+  <!--
+    Task 7: a grouped/tree structure, not a spartan table, so pagination
+    doesn't apply the way it does for roles-list/users-list — height-
+    constrained internal scroll instead. Scrollbar left VISIBLE on purpose
+    (not `bp-scrollbar-hidden`): this is a data-dense management screen where
+    the affordance of "there's more below" matters more than the aesthetics
+    that justify hiding it in the sidebar rail.
+  -->
+  <div hlmAccordion type="multiple" class="max-h-[65vh] overflow-y-auto rounded-lg border">
     @for (group of groups(); track group.module.id) {
       <div
         hlmAccordionItem

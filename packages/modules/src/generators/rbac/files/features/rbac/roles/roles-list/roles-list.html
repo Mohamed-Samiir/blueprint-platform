@@ -1,4 +1,4 @@
-<div class="mx-auto grid w-full max-w-4xl gap-4 p-4 sm:p-6">
+<div class="grid w-full gap-4 px-4 py-3">
   <header class="flex flex-wrap items-center justify-between gap-3">
     <div class="grid gap-1">
       <h1 class="text-xl font-semibold tracking-tight">Roles</h1>
@@ -21,17 +21,31 @@
 
   <div hlmTableContainer class="rounded-lg border">
     <table hlmTable>
-      <thead hlmTHead>
-        <tr hlmTr>
-          <th hlmTh>Role</th>
-          <th hlmTh>Status</th>
-          <th hlmTh>Assigned users</th>
-          <th hlmTh class="text-end">Actions</th>
+      <thead hlmTHead class="bg-muted/60">
+        <tr>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Role
+          </th>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Status
+          </th>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Assigned users
+          </th>
+          <th
+            hlmTh
+            class="text-muted-foreground text-end text-xs font-semibold tracking-wide uppercase"
+          >
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody hlmTBody>
-        @for (row of rows(); track row.role.id) {
-          <tr hlmTr>
+        @for (row of pagedRows(); track row.role.id) {
+          <tr
+            hlmTr
+            class="border-s-2 border-s-transparent transition-colors hover:border-s-primary"
+          >
             <td hlmTd>
               <div class="grid gap-0.5">
                 <span class="font-medium">{{ row.role.name }}</span>
@@ -63,12 +77,7 @@
               </button>
               <ng-template #menu>
                 <hlm-dropdown-menu class="w-48">
-                  <button
-                    hlmDropdownMenuItem
-                    [routerLink]="[row.role.id, 'edit']"
-                  >
-                    Edit
-                  </button>
+                  <button hlmDropdownMenuItem [routerLink]="[row.role.id, 'edit']">Edit</button>
                   <button hlmDropdownMenuItem (click)="openUsers(row.role)">
                     View assigned users
                   </button>
@@ -95,6 +104,15 @@
       </tbody>
     </table>
   </div>
+
+  @if (rows().length > 0) {
+    <hlm-numbered-pagination
+      [(currentPage)]="currentPage"
+      [(itemsPerPage)]="itemsPerPage"
+      [totalItems]="rows().length"
+      [pageSizes]="[10, 20, 50]"
+    />
+  }
 </div>
 
 <hlm-alert-dialog #actionDialog>

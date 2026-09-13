@@ -28,6 +28,19 @@
   }
 }
 
+// Scrollable content with no visible scrollbar, across engines. Used by the
+// sidebar/topbar shells' collapsed-rail content, which needs scrolling ON
+// (spartan's own `hlm-sidebar-content` normally turns it off while collapsed)
+// without the rail growing a visible scrollbar.
+.bp-scrollbar-hidden {
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // legacy Edge/IE
+  &::-webkit-scrollbar {
+    // Chrome/Safari/new Edge
+    display: none;
+  }
+}
+
 [data-slot='accordion-trigger'][aria-expanded='true']
   [data-slot='accordion-trigger-icon']:first-of-type {
   display: none !important;

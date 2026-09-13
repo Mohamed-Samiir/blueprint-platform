@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
   viewChild,
@@ -16,6 +17,7 @@ import { HlmButtonImports } from '@blueprint-platform/ui/button';
 import { HlmDropdownMenuImports } from '@blueprint-platform/ui/dropdown-menu';
 import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmInput } from '@blueprint-platform/ui/input';
+import { HlmPaginationImports } from '@blueprint-platform/ui/pagination';
 import { HlmTableImports } from '@blueprint-platform/ui/table';
 import type { Role } from '../../../../core/rbac/models';
 import { usersForRole } from '../../../../core/rbac/mock-users.data';
@@ -47,6 +49,7 @@ type DeleteOrDeactivate = 'delete' | 'deactivate';
     HlmDropdownMenuImports,
     HlmFieldImports,
     HlmInput,
+    HlmPaginationImports,
     HlmTableImports,
   ],
   providers: [provideIcons({ lucideEllipsisVertical, lucidePlus })],
@@ -67,6 +70,29 @@ export class RolesList {
       )
       .map((r) => ({ role: r, users: usersForRole(r.id) }));
   });
+
+  /**
+   * Task 7: `hlm-table` itself has no built-in pagination (it's pure styling
+   * directives over plain `<table>` elements) — but spartan's catalog does
+   * ship a separate, self-contained `hlm-numbered-pagination` component, so
+   * real pagination (the task's stated preference over a scroll container,
+   * where available) is used here rather than a `max-h-*` scroll box.
+   */
+  protected readonly currentPage = signal(1);
+  protected readonly itemsPerPage = signal(10);
+  protected readonly pagedRows = computed(() => {
+    const page = this.currentPage();
+    const size = this.itemsPerPage();
+    return this.rows().slice((page - 1) * size, page * size);
+  });
+
+  constructor() {
+    // A new search result set can easily be shorter than the current page.
+    effect(() => {
+      this.query();
+      this.currentPage.set(1);
+    });
+  }
 
   /** Delete and deactivate share one dialog: same shape of warning, different verb/action. */
   protected readonly pendingAction = signal<{ role: Role; kind: DeleteOrDeactivate } | null>(null);

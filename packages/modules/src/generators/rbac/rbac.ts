@@ -1,7 +1,9 @@
 import { Tree, formatFiles, generateFiles, joinPathFragments, logger, readJson } from '@nx/devkit';
 import {
   appendChildRoutes,
+  appendNavItem,
   appendToManifest,
+  findExistingMainShell,
   LayoutBranchChild,
 } from '@blueprint-platform/generator-kit';
 import { loadUiGenerator } from '../shared/load-ui-generator';
@@ -146,6 +148,31 @@ export default async function (tree: Tree, options: RbacGeneratorSchema) {
   // comment for the override any real auth setup provides).
 
   appendToManifest(tree, appRoot, 'modules', 'rbac');
+
+  // Each module adds its own nav link, unconditionally, wherever it's run —
+  // not a separate composition step. Whatever main app shell is currently
+  // present (never `auth-split`/`auth-centered`, which `findExistingMainShell`
+  // never matches) gets Roles + Permissions; `layout: 'none'` (no shell to
+  // inject into) is not an error, just nothing to do yet — see the
+  // `foundation:layout`-added-later limitation documented in CLAUDE.md.
+  const shell = findExistingMainShell(tree);
+  if (shell) {
+    appendNavItem(tree, shell.path, {
+      label: 'Roles',
+      routerLink: `/${routePrefix}/roles`,
+      icon: 'lucideShield',
+    });
+    appendNavItem(tree, shell.path, {
+      label: 'Permissions',
+      routerLink: `/${routePrefix}/permissions`,
+      icon: 'lucideKeyRound',
+    });
+  } else {
+    logger.info(
+      'modules:rbac: no main app shell present yet (layout: none) — no nav link added. ' +
+        'Adding a shell later via `foundation:layout` will not retroactively add one either (a known, documented limitation).',
+    );
+  }
 
   await formatFiles(tree);
 }

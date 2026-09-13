@@ -38,6 +38,38 @@ function makeTree(routesTemplate = FLAT_ROUTES): Tree {
   return tree;
 }
 
+const SHELL_HTML = `<ul hlmSidebarMenu>
+  <li hlmSidebarMenuItem>
+    <a routerLink="/" [tooltip]="'Welcome'">
+      <ng-icon name="lucideHouse" />
+      <span>Welcome</span>
+    </a>
+  </li>
+  <!-- BP:NAV_ITEMS -->
+</ul>
+`;
+
+const SHELL_TS = `import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideHouse } from '@ng-icons/lucide';
+
+@Component({
+  selector: 'app-sidebar-shell',
+  imports: [NgIcon],
+  providers: [provideIcons({ lucideHouse })],
+  templateUrl: './sidebar-shell.html',
+})
+export class SidebarShell {}
+`;
+
+/** A tree with a real (not just route-referenced) sidebar-shell present, for the nav-link injection tests. */
+function makeTreeWithRealShell(): Tree {
+  const tree = makeTree(SHELL_ROUTES);
+  tree.write('src/app/layout/sidebar-shell/sidebar-shell.ts', SHELL_TS);
+  tree.write('src/app/layout/sidebar-shell/sidebar-shell.html', SHELL_HTML);
+  return tree;
+}
+
 describe('modules:rbac generator', () => {
   let tree: Tree;
 
@@ -149,6 +181,51 @@ describe('modules:rbac generator', () => {
     await rbacGenerator(tree, {});
     const manifest = readJson(tree, '.blueprint/manifest.json');
     expect(manifest.modules).toEqual(['rbac']);
+  });
+
+  it('adds Roles + Permissions nav links to an existing main shell', async () => {
+    tree = makeTreeWithRealShell();
+    await rbacGenerator(tree, {});
+    const html = tree.read('src/app/layout/sidebar-shell/sidebar-shell.html', 'utf-8') ?? '';
+    expect(html).toContain('routerLink="/admin/roles"');
+    expect(html).toContain('<span>Roles</span>');
+    expect(html).toContain('routerLink="/admin/permissions"');
+    expect(html).toContain('<span>Permissions</span>');
+    expect(html.indexOf('Welcome')).toBeLessThan(html.indexOf('Roles'));
+    const ts = tree.read('src/app/layout/sidebar-shell/sidebar-shell.ts', 'utf-8') ?? '';
+    expect(ts).toContain('lucideShield');
+    expect(ts).toContain('lucideKeyRound');
+  });
+
+  it('respects a custom routePrefix in the injected nav links too', async () => {
+    tree = makeTreeWithRealShell();
+    await rbacGenerator(tree, { routePrefix: 'access' });
+    const html = tree.read('src/app/layout/sidebar-shell/sidebar-shell.html', 'utf-8') ?? '';
+    expect(html).toContain('routerLink="/access/roles"');
+    expect(html).toContain('routerLink="/access/permissions"');
+  });
+
+  it('adds no nav link when layout is none, and logs why', async () => {
+    const infoSpy = jest.spyOn(require('@nx/devkit').logger, 'info');
+    await rbacGenerator(tree, {});
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('no main app shell present yet'));
+    infoSpy.mockRestore();
+  });
+
+  it('does not duplicate nav links even if appendNavItem were somehow invoked twice (idempotency at the helper level)', async () => {
+    tree = makeTreeWithRealShell();
+    await rbacGenerator(tree, {});
+    // A real second `rbacGenerator` run short-circuits on the manifest check
+    // before ever reaching nav injection again — exercise the underlying
+    // idempotency directly against the already-populated shell instead.
+    const { appendNavItem } = require('@blueprint-platform/generator-kit');
+    appendNavItem(tree, 'src/app/layout/sidebar-shell/sidebar-shell.html', {
+      label: 'Roles',
+      routerLink: '/admin/roles',
+      icon: 'lucideShield',
+    });
+    const html = tree.read('src/app/layout/sidebar-shell/sidebar-shell.html', 'utf-8') ?? '';
+    expect(html.match(/routerLink="\/admin\/roles"/g)?.length).toBe(1);
   });
 
   it('is a no-op on a second run — does not duplicate the route tree', async () => {

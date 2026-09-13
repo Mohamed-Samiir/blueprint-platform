@@ -38,6 +38,38 @@ function makeTree(routesTemplate = FLAT_ROUTES): Tree {
   return tree;
 }
 
+const SHELL_HTML = `<ul hlmSidebarMenu>
+  <li hlmSidebarMenuItem>
+    <a routerLink="/" [tooltip]="'Welcome'">
+      <ng-icon name="lucideHouse" />
+      <span>Welcome</span>
+    </a>
+  </li>
+  <!-- BP:NAV_ITEMS -->
+</ul>
+`;
+
+const SHELL_TS = `import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideHouse } from '@ng-icons/lucide';
+
+@Component({
+  selector: 'app-sidebar-shell',
+  imports: [NgIcon],
+  providers: [provideIcons({ lucideHouse })],
+  templateUrl: './sidebar-shell.html',
+})
+export class SidebarShell {}
+`;
+
+/** A tree with a real (not just route-referenced) sidebar-shell present, for the nav-link injection tests. */
+function makeTreeWithRealShell(): Tree {
+  const tree = makeTree(SHELL_ROUTES);
+  tree.write('src/app/layout/sidebar-shell/sidebar-shell.ts', SHELL_TS);
+  tree.write('src/app/layout/sidebar-shell/sidebar-shell.html', SHELL_HTML);
+  return tree;
+}
+
 describe('modules:user-management generator', () => {
   let tree: Tree;
 
@@ -135,6 +167,31 @@ describe('modules:user-management generator', () => {
     await userManagementGenerator(tree, {});
     const out = tree.read('src/app/app.routes.ts', 'utf-8') ?? '';
     expect(out.split(`path: 'admin/users'`).length).toBe(2);
+  });
+
+  it('adds a User Management nav link to an existing main shell', async () => {
+    tree = makeTreeWithRealShell();
+    await userManagementGenerator(tree, {});
+    const html = tree.read('src/app/layout/sidebar-shell/sidebar-shell.html', 'utf-8') ?? '';
+    expect(html).toContain('routerLink="/admin/users"');
+    expect(html).toContain('<span>User Management</span>');
+    expect(html.indexOf('Welcome')).toBeLessThan(html.indexOf('User Management'));
+    const ts = tree.read('src/app/layout/sidebar-shell/sidebar-shell.ts', 'utf-8') ?? '';
+    expect(ts).toContain('lucideUsers');
+  });
+
+  it('respects a custom routePrefix in the injected nav link too', async () => {
+    tree = makeTreeWithRealShell();
+    await userManagementGenerator(tree, { routePrefix: 'people' });
+    const html = tree.read('src/app/layout/sidebar-shell/sidebar-shell.html', 'utf-8') ?? '';
+    expect(html).toContain('routerLink="/people"');
+  });
+
+  it('adds no nav link when layout is none, and logs why', async () => {
+    const infoSpy = jest.spyOn(require('@nx/devkit').logger, 'info');
+    await userManagementGenerator(tree, {});
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('no main app shell present yet'));
+    infoSpy.mockRestore();
   });
 
   it('has zero real import of core/auth or core/rbac anywhere in the copied output (doc-comment mentions explaining the absence are fine)', async () => {

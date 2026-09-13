@@ -1,11 +1,19 @@
 <hlm-sidebar-wrapper>
   <hlm-sidebar variant="sidebar" collapsible="icon" [side]="side()">
-    <div hlmSidebarHeader>
-      <div class="flex items-center gap-2 px-2 py-1.5">
+    <div hlmSidebarHeader [class]="collapsed() ? 'p-0!' : ''">
+      <div
+        [class]="
+          collapsed()
+            ? 'flex items-center justify-start py-1'
+            : 'flex items-center gap-2 px-2 py-1.5'
+        "
+      >
         <img
           src="branding/logo.png"
           alt="Blueprint"
-          class="h-8 w-auto shrink-0 object-contain"
+          [class]="
+            collapsed() ? 'h-10 w-10 shrink-0 object-contain' : 'h-8 w-auto shrink-0 object-contain'
+          "
         />
         <div class="flex flex-col group-data-[collapsible=icon]:hidden">
           <span class="text-sm font-semibold">Blueprint</span>
@@ -21,285 +29,27 @@
       />
     </div>
 
-    <div hlmSidebarContent>
+    <div
+      hlmSidebarContent
+      [class]="'bp-scrollbar-hidden' + (collapsed() ? ' overflow-y-auto!' : '')"
+    >
       <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Platform</div>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
-            @for (item of nav; track item.label) {
-              @if (item.children) {
-                @if (collapsed()) {
-                  <!-- Collapsed: icon only; hovering opens the children as a side flyout. -->
-                  <li hlmSidebarMenuItem>
-                    <button
-                      hlmSidebarMenuButton
-                      appSidebarItemFlyout
-                      [tooltip]="item.label"
-                      [hlmDropdownMenuTrigger]="itemMenu"
-                      [side]="side() === 'right' ? 'left' : 'right'"
-                      align="start"
-                    >
-                      <ng-icon [name]="item.icon" />
-                      <span>{{ item.label }}</span>
-                    </button>
-                    <ng-template #itemMenu>
-                      <hlm-dropdown-menu class="min-w-44">
-                        <div hlmDropdownMenuLabel>{{ item.label }}</div>
-                        <hlm-dropdown-menu-separator />
-                        @for (child of item.children; track child.label) {
-                          <button hlmDropdownMenuItem>{{ child.label }}</button>
-                        }
-                      </hlm-dropdown-menu>
-                    </ng-template>
-                  </li>
-                } @else {
-                  <!-- Expanded: ordinary in-place expand/collapse sub-list. -->
-                  <hlm-collapsible class="group/collapsible">
-                    <li hlmSidebarMenuItem>
-                      <button hlmCollapsibleTrigger hlmSidebarMenuButton class="w-full">
-                        <ng-icon [name]="item.icon" />
-                        <span>{{ item.label }}</span>
-                        <ng-icon
-                          name="lucideChevronRight"
-                          class="ms-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90"
-                        />
-                      </button>
-                      <hlm-collapsible-content>
-                        <ul hlmSidebarMenuSub>
-                          @for (child of item.children; track child.label) {
-                            <li hlmSidebarMenuSubItem>
-                              <button hlmSidebarMenuSubButton class="w-full">
-                                <span>{{ child.label }}</span>
-                              </button>
-                            </li>
-                          }
-                        </ul>
-                      </hlm-collapsible-content>
-                    </li>
-                  </hlm-collapsible>
-                }
-              } @else {
-                <li hlmSidebarMenuItem>
-                  <button hlmSidebarMenuButton [isActive]="!!item.active" [tooltip]="item.label">
-                    <ng-icon [name]="item.icon" />
-                    <span>{{ item.label }}</span>
-                  </button>
-                </li>
-              }
-            }
-          </ul>
-        </div>
-      </div>
-      <!-- Links & buttons -->
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Menu &mdash; links &amp; buttons</div>
         <div hlmSidebarGroupContent>
           <ul hlmSidebarMenu>
             <li hlmSidebarMenuItem>
-              <a hlmSidebarMenuButton href="#" [tooltip]="'Home'">
-                <ng-icon name="lucideHouse" />
-                <span>Home (link)</span>
-              </a>
-            </li>
-            <li hlmSidebarMenuItem>
-              <a hlmSidebarMenuButton href="#" isActive [tooltip]="'Inbox'">
-                <ng-icon name="lucideInbox" />
-                <span>Inbox (active)</span>
-              </a>
-            </li>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton [tooltip]="'Send'">
-                <ng-icon name="lucideSend" />
-                <span>Send (button)</span>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div hlmSidebarSeparator></div>
-
-      <!-- Variants & sizes -->
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Button variants &amp; sizes</div>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton variant="default" [tooltip]="'variant default'">
-                <ng-icon name="lucideFrame" />
-                <span>variant default</span>
-              </button>
-            </li>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton variant="outline" [tooltip]="'variant outline'">
-                <ng-icon name="lucideFrame" />
-                <span>variant outline</span>
-              </button>
-            </li>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton size="sm"><span>size sm</span></button>
-            </li>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton size="default"><span>size default</span></button>
-            </li>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton size="lg"><span>size lg</span></button>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Badges, menu actions, group action -->
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Badges &amp; actions</div>
-        <button hlmSidebarGroupAction title="Add project" (click)="onGroupAction()">
-          <ng-icon name="lucidePlus" />
-          <span class="sr-only">Add project</span>
-        </button>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
-            @for (project of projects; track project.name) {
-              <li hlmSidebarMenuItem>
-                <button hlmSidebarMenuButton [tooltip]="project.name">
-                  <ng-icon [name]="project.icon" />
-                  <span>{{ project.name }}</span>
-                </button>
-                <div hlmSidebarMenuBadge>{{ project.info }}</div>
-              </li>
-            }
-            <li hlmSidebarMenuItem>
-              <a hlmSidebarMenuButton href="#" [tooltip]="'Row with action'">
-                <ng-icon name="lucideLifeBuoy" />
-                <span>Row with action</span>
-              </a>
-              <button
-                hlmSidebarMenuAction
-                showOnHover
-                [hlmDropdownMenuTrigger]="rowMenu"
-                align="start"
-                side="right"
+              <a
+                hlmSidebarMenuButton
+                routerLink="/"
+                routerLinkActive
+                #rla="routerLinkActive"
+                [isActive]="rla.isActive"
+                [tooltip]="'Welcome'"
               >
-                <ng-icon name="lucideEllipsis" />
-                <span class="sr-only">More</span>
-              </button>
-              <ng-template #rowMenu>
-                <hlm-dropdown-menu>
-                  <button hlmDropdownMenuItem>Edit project</button>
-                  <button hlmDropdownMenuItem>Delete project</button>
-                </hlm-dropdown-menu>
-              </ng-template>
+                <ng-icon name="lucideHouse" />
+                <span>Welcome</span>
+              </a>
             </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Static submenu -->
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Submenu (static)</div>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
-            <li hlmSidebarMenuItem>
-              <button hlmSidebarMenuButton [tooltip]="'Components'">
-                <ng-icon name="lucideBookOpen" />
-                <span>Components</span>
-              </button>
-              <ul hlmSidebarMenuSub>
-                <li hlmSidebarMenuSubItem>
-                  <button hlmSidebarMenuSubButton size="md" isActive><span>Accordion</span></button>
-                </li>
-                <li hlmSidebarMenuSubItem>
-                  <button hlmSidebarMenuSubButton size="md"><span>Dialog</span></button>
-                </li>
-                <li hlmSidebarMenuSubItem>
-                  <button hlmSidebarMenuSubButton size="sm"><span>Tooltip (sm)</span></button>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Collapsible group -->
-      <hlm-collapsible [expanded]="true" class="group/collapsible">
-        <div hlmSidebarGroup>
-          <button
-            hlmCollapsibleTrigger
-            hlmSidebarGroupLabel
-            class="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
-          >
-            Collapsible group
-            <ng-icon
-              name="lucideChevronDown"
-              class="ms-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
-            />
-          </button>
-          <hlm-collapsible-content>
-            <div hlmSidebarGroupContent>
-              <ul hlmSidebarMenu>
-                <li hlmSidebarMenuItem>
-                  <a hlmSidebarMenuButton href="#">
-                    <ng-icon name="lucideLifeBuoy" />
-                    <span>Support</span>
-                  </a>
-                </li>
-                <li hlmSidebarMenuItem>
-                  <a hlmSidebarMenuButton href="#">
-                    <ng-icon name="lucideSend" />
-                    <span>Feedback</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </hlm-collapsible-content>
-        </div>
-      </hlm-collapsible>
-
-      <!-- Collapsible submenus -->
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Collapsible submenu</div>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
-            @for (item of docs; track item.title) {
-              <hlm-collapsible [expanded]="item.open" class="group/collapsible">
-                <li hlmSidebarMenuItem>
-                  <button hlmCollapsibleTrigger hlmSidebarMenuButton class="w-full">
-                    <ng-icon name="lucideSquareTerminal" />
-                    <span>{{ item.title }}</span>
-                    <ng-icon
-                      name="lucideChevronRight"
-                      class="ms-auto transition-transform group-data-[state=open]/collapsible:rotate-90"
-                    />
-                  </button>
-                  <hlm-collapsible-content>
-                    <ul hlmSidebarMenuSub>
-                      @for (sub of item.items; track sub) {
-                        <li hlmSidebarMenuSubItem>
-                          <button hlmSidebarMenuSubButton class="w-full">
-                            <span>{{ sub }}</span>
-                          </button>
-                        </li>
-                      }
-                    </ul>
-                  </hlm-collapsible-content>
-                </li>
-              </hlm-collapsible>
-            }
-          </ul>
-        </div>
-      </div>
-
-      <div hlmSidebarSeparator></div>
-
-      <!-- Loading skeletons -->
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Loading state</div>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
-            @for (row of skeletonRows; track row) {
-              <li hlmSidebarMenuItem>
-                <div hlmSidebarMenuSkeleton [showIcon]="row % 2 === 0"></div>
-              </li>
-            }
+            <!-- BP:NAV_ITEMS -->
           </ul>
         </div>
       </div>

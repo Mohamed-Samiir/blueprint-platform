@@ -31,6 +31,8 @@ import { join } from 'path';
  */
 const STARTER_UI = [
   'utils',
+  // used unconditionally by files/welcome/welcome.html's three pillar cards
+  'card',
   // form controls
   'button',
   'checkbox',
@@ -151,6 +153,13 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
     // components ship. The spartan / cva / clsx / ng-icons / embla / scrollbar
     // deps are added by the `ui` generator for exactly the components it copies.
     json.dependencies['@angular/cdk'] = '^22.0.0';
+    // `files/welcome/welcome.html`'s three pillar cards use lucide icons
+    // directly — welcome.ts isn't part of the `ui` generator's own catalog
+    // scan (npm-deps.ts only scans copied UI-kit components), so this one
+    // stays an explicit base dep rather than relying on it arriving
+    // incidentally via whichever STARTER_UI components happen to use icons.
+    json.dependencies['@ng-icons/core'] = '^32.0.0';
+    json.dependencies['@ng-icons/lucide'] = '^32.0.0';
     json.devDependencies['tailwindcss'] = '^4.0.0';
     json.devDependencies['@tailwindcss/postcss'] = '^4.0.0';
     json.devDependencies['postcss'] = '^8.4.0';

@@ -1,4 +1,4 @@
-<div class="mx-auto grid w-full max-w-4xl gap-4 p-4 sm:p-6">
+<div class="grid w-full gap-4 px-4 py-3">
   <header class="flex flex-wrap items-center justify-between gap-3">
     <div class="grid gap-1">
       <h1 class="text-xl font-semibold tracking-tight">Users</h1>
@@ -39,7 +39,7 @@
         </tr>
       </thead>
       <tbody hlmTBody>
-        @for (user of users(); track user.id) {
+        @for (user of pagedUsers(); track user.id) {
           <tr
             hlmTr
             class="border-s-2 border-s-transparent transition-colors hover:border-s-primary"
@@ -74,12 +74,7 @@
               <ng-template #menu>
                 <hlm-dropdown-menu class="w-48">
                   <button hlmDropdownMenuItem (click)="openDetails(user)">View details</button>
-                  <button
-                    hlmDropdownMenuItem
-                    [routerLink]="[user.id, 'edit']"
-                  >
-                    Edit
-                  </button>
+                  <button hlmDropdownMenuItem [routerLink]="[user.id, 'edit']">Edit</button>
                   <button hlmDropdownMenuItem (click)="openChangeRole(user)">Change role</button>
                   <hlm-dropdown-menu-separator />
                   <button hlmDropdownMenuItem (click)="openDeactivate(user)">
@@ -97,6 +92,15 @@
       </tbody>
     </table>
   </div>
+
+  @if (users().length > 0) {
+    <hlm-numbered-pagination
+      [(currentPage)]="currentPage"
+      [(itemsPerPage)]="itemsPerPage"
+      [totalItems]="users().length"
+      [pageSizes]="[10, 20, 50]"
+    />
+  }
 </div>
 
 <app-details-user #detailsDialog />
