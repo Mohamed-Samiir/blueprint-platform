@@ -5,5 +5,7 @@ export { appendProvider } from './lib/append-provider';
 export {
   addLayoutBranch,
   readProtectedRouteBranches,
+  renderChild,
   type LayoutBranchChild,
 } from './lib/add-layout-branch';
+export { appendChildRoutes } from './lib/append-child-routes';

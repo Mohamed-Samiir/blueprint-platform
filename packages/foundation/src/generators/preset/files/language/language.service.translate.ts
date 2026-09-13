@@ -35,6 +35,19 @@ const LANG_KEY = 'bp-language';
  * `preset.ts`). The base variant behaves identically minus the `ngx-translate`
  * wiring, since layout shells need `LanguageService` for direction regardless
  * of whether translation is enabled.
+ *
+ * `valueSignal` matters just as much as `value`/`change`: it's a *public*
+ * member of `Directionality` (`readonly valueSignal: WritableSignal<Direction>`),
+ * and it's the one spartan's own brain primitives actually read internally
+ * (`accordion`, `dialog`, `hover-card`, `navigation-menu`, `overlay`,
+ * `radio-group`, `resizable`, `slider`, `sonner`, `tabs`, `tooltip` all do
+ * `this._dir.valueSignal()` rather than going through the `value` getter).
+ * Without it, e.g. `hlm-alert-dialog.open()` throws
+ * `this._directionality.valueSignal is not a function`. None of them call
+ * `.set()`/`.update()` on it — read-only, so aliasing it straight to `dir`
+ * (a `computed`, not a `WritableSignal`) is safe despite the narrower type;
+ * it's intentionally left out of the `Pick` below since a computed signal
+ * isn't structurally a `WritableSignal`.
  */
 @Injectable({ providedIn: 'root' })
 export class LanguageService
@@ -58,6 +71,8 @@ export class LanguageService
   get value(): Direction {
     return this.dir();
   }
+  /** Same contract, the signal form — see the class doc comment above. */
+  readonly valueSignal = this.dir;
   readonly change = new EventEmitter<Direction>();
   private _lastDir: Direction | null = null;
 

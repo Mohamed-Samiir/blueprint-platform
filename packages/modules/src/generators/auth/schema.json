@@ -23,6 +23,21 @@
       "enum": ["split", "centered"],
       "description": "Which auth layout shell to add (foundation:layout's auth-split or auth-centered catalog entry). Distinct from foundation's own `layout` option — this picks the shell that wraps ONLY the auth route branch, not the main app shell.",
       "default": "split"
+    },
+    "includeSignup": {
+      "type": "boolean",
+      "description": "Copy signup-form and wire its `signup` route. Default true (additive — matches pre-flag behavior).",
+      "default": true
+    },
+    "includeForgotPassword": {
+      "type": "boolean",
+      "description": "Copy the three-step forgot-password flow (email/code/new-password forms) and wire its `forgot-password/*` routes, as one unit — a linear flow with only some steps present doesn't make sense standalone. Default true (additive — matches pre-flag behavior).",
+      "default": true
+    },
+    "includeChangePassword": {
+      "type": "boolean",
+      "description": "Copy change-password-form and wire its `change-password` route. Default true (additive — matches pre-flag behavior).",
+      "default": true
     }
   },
   "required": []

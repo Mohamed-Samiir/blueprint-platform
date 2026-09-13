@@ -63,7 +63,9 @@
       <hlm-checkbox formControlName="rememberMe" />
       Remember me
     </label>
-    <a hlmBtn variant="link" size="sm" routerLink="../forgot-password/email">Forgot password?</a>
+    @if (authFeatures.forgotPassword) {
+      <a hlmBtn variant="link" size="sm" routerLink="../forgot-password/email">Forgot password?</a>
+    }
   </div>
 
   <button hlmBtn type="submit" class="w-full" [disabled]="pending()">
@@ -93,4 +95,11 @@
       Terms and Conditions</button
     >.
   </p>
+
+  @if (authFeatures.signup) {
+    <p class="text-muted-foreground text-center text-sm">
+      Don't have an account?
+      <a hlmBtn variant="link" size="sm" class="px-1" routerLink="../signup">Sign up</a>
+    </p>
+  }
 </form>

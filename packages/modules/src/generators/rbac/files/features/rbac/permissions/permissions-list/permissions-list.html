@@ -1,0 +1,116 @@
+<div class="mx-auto grid w-full max-w-3xl gap-4 p-4 sm:p-6">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div class="grid gap-1">
+      <h1 class="text-xl font-semibold tracking-tight">Permissions</h1>
+      <p class="text-muted-foreground text-sm">
+        Grouped by module. Deleting cascades to anything that depends on it.
+      </p>
+    </div>
+    <a hlmBtn routerLink="new">
+      <ng-icon name="lucidePlus" data-icon="inline-start" />
+      New permission
+    </a>
+  </header>
+
+  <hlm-field>
+    <input
+      hlmInput
+      placeholder="Search permissions by label or key…"
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+    />
+  </hlm-field>
+
+  @if (groups().length === 0) {
+    <p class="text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+      No permissions match "{{ query() }}".
+    </p>
+  }
+
+  <div hlmAccordion type="multiple" class="rounded-lg border">
+    @for (group of groups(); track group.module.id) {
+      <div
+        hlmAccordionItem
+        [isOpened]="isExpanded(group.module.id)"
+        (openedChange)="setExpanded(group.module.id, $event)"
+        class="px-3"
+      >
+        <hlm-accordion-trigger>
+          {{ group.module.name }}
+          <!-- <span class="text-muted-foreground ms-2 text-xs font-normal">{{
+            group.permissions.length
+          }}</span> -->
+        </hlm-accordion-trigger>
+        <hlm-accordion-content>
+          <div class="grid gap-1 pb-3">
+            @for (permission of group.permissions; track permission.id) {
+              <div
+                class="hover:bg-muted/50 flex items-center justify-between gap-3 rounded-md px-2 py-1.5"
+              >
+                <div class="grid gap-0.5">
+                  <p class="text-sm font-medium">
+                    {{ permission.label }}
+                    @if (permission.isModuleRoot) {
+                      <span class="text-muted-foreground text-xs font-normal">(module root)</span>
+                    }
+                  </p>
+                  <p class="text-muted-foreground text-xs">{{ permission.key }}</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-1">
+                  <a
+                    hlmBtn
+                    variant="ghost"
+                    size="icon-sm"
+                    [routerLink]="[permission.id, 'edit']"
+                    aria-label="Edit permission"
+                  >
+                    <ng-icon name="lucidePencil" />
+                  </a>
+                  <button
+                    hlmBtn
+                    variant="ghost"
+                    size="icon-sm"
+                    (click)="openDelete(permission)"
+                    aria-label="Delete permission"
+                  >
+                    <ng-icon name="lucideTrash2" />
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </hlm-accordion-content>
+      </div>
+    }
+  </div>
+</div>
+
+<hlm-alert-dialog #deleteDialog>
+  <ng-template brnAlertDialogContent>
+    <hlm-alert-dialog-content>
+      <hlm-alert-dialog-header>
+        <h3 hlmAlertDialogTitle>Delete "{{ pendingDelete()?.label }}"?</h3>
+        <p hlmAlertDialogDescription>
+          @if (pendingDependents().length > 0) {
+            This will also delete
+            {{ pendingDependents().length }} permission{{
+              pendingDependents().length === 1 ? '' : 's'
+            }}
+            that depend on it:
+            {{
+              pendingDependents()
+                .map((p) => p.label)
+                .join(', ')
+            }}. This can't be undone.
+          } @else {
+            Nothing else depends on this permission. This can't be undone.
+          }
+        </p>
+      </hlm-alert-dialog-header>
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel>Cancel</button>
+        <button hlmAlertDialogAction (click)="confirmDelete()">Delete</button>
+      </hlm-alert-dialog-footer>
+    </hlm-alert-dialog-content>
+  </ng-template>
+</hlm-alert-dialog>

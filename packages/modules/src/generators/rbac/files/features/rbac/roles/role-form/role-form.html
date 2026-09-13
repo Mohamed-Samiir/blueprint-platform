@@ -1,0 +1,97 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="mx-auto grid w-full max-w-2xl gap-6 p-4 sm:p-6"
+>
+  <header class="grid gap-1">
+    <h1 class="text-xl font-semibold tracking-tight">
+      {{ isEditMode ? 'Edit role' : 'New role' }}
+    </h1>
+    <p class="text-muted-foreground text-sm">Name it, describe it, then choose what it can do.</p>
+  </header>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <hlm-field>
+      <label hlmFieldLabel for="role-name">Name</label>
+      <input hlmInput id="role-name" formControlName="name" placeholder="Support" />
+      <hlm-field-error validator="required">Name is required.</hlm-field-error>
+    </hlm-field>
+
+    <label class="flex items-center gap-2 self-end pb-1.5 text-sm select-none">
+      <hlm-switch formControlName="active" />
+      Active
+    </label>
+
+    <hlm-field class="sm:col-span-2">
+      <label hlmFieldLabel for="role-description">Description</label>
+      <textarea hlmTextarea id="role-description" formControlName="description" rows="2"></textarea>
+    </hlm-field>
+  </div>
+
+  <div class="grid gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-sm font-medium">Permissions</h2>
+      <hlm-field class="max-w-[14rem]">
+        <input
+          hlmInput
+          placeholder="Search permissions…"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+      </hlm-field>
+    </div>
+
+    @if (notice()) {
+      <div hlmAlert role="status" class="text-sm">
+        <span hlmAlertTitle>{{ notice() }}</span>
+      </div>
+    }
+
+    @if (groups().length === 0) {
+      <p class="text-muted-foreground text-sm">No matching permissions.</p>
+    }
+
+    <div class="grid max-h-96 gap-4 overflow-y-auto rounded-lg border p-3">
+      @for (group of groups(); track group.module.id) {
+        <div class="grid gap-2">
+          <p class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            {{ group.module.name }}
+          </p>
+          @for (row of group.rows; track row.permission.id) {
+            <label class="flex items-center gap-2 text-sm select-none">
+              <hlm-checkbox
+                [checked]="row.checked"
+                (checkedChange)="onToggle(row.permission, $event)"
+              />
+              {{ row.permission.label }}
+              <span class="text-muted-foreground">({{ row.permission.key }})</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button hlmBtn type="submit">{{ isEditMode ? 'Save changes' : 'Create role' }}</button>
+    <a hlmBtn variant="outline" [routerLink]="isEditMode ? ['..', '..'] : ['..']">Cancel</a>
+  </div>
+</form>
+
+<hlm-alert-dialog #uncheckDialog>
+  <ng-template brnAlertDialogContent>
+    <hlm-alert-dialog-content>
+      <hlm-alert-dialog-header>
+        <h3 hlmAlertDialogTitle>Unselect "{{ pendingUncheck()?.permission?.label }}"?</h3>
+        <p hlmAlertDialogDescription>
+          These selected permissions require it and will also be unselected:
+          {{ (pendingUncheck()?.dependents ?? []).map((p) => p.label).join(', ') }}.
+        </p>
+      </hlm-alert-dialog-header>
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel (click)="cancelUncheck()">Cancel</button>
+        <button hlmAlertDialogAction (click)="confirmUncheck()">Unselect all</button>
+      </hlm-alert-dialog-footer>
+    </hlm-alert-dialog-content>
+  </ng-template>
+</hlm-alert-dialog>

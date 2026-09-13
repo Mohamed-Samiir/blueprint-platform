@@ -8,4 +8,13 @@ export interface AuthGeneratorSchema {
    * `auth-centered` catalog entry. Default 'split'.
    */
   authLayout?: 'split' | 'centered';
+  /** Copy signup-form + wire its route. Default true. */
+  includeSignup?: boolean;
+  /**
+   * Copy the three-step forgot-password flow + wire its routes, as one unit.
+   * Default true.
+   */
+  includeForgotPassword?: boolean;
+  /** Copy change-password-form + wire its route. Default true. */
+  includeChangePassword?: boolean;
 }

@@ -1,9 +1,22 @@
-import { Tree, formatFiles, generateFiles, joinPathFragments, logger, readJson } from '@nx/devkit';
-import { addLayoutBranch, appendProvider, appendToManifest } from '@blueprint-platform/generator-kit';
+import {
+  Tree,
+  formatFiles,
+  generateFiles,
+  joinPathFragments,
+  logger,
+  readJson,
+  updateJson,
+} from '@nx/devkit';
+import {
+  addLayoutBranch,
+  appendProvider,
+  appendToManifest,
+  LayoutBranchChild,
+} from '@blueprint-platform/generator-kit';
 import { loadLayoutGenerator } from '../shared/load-layout-generator';
 import { loadUiGenerator } from '../shared/load-ui-generator';
+import { scanUiImports } from '../shared/scan-ui-imports';
 import { patchGlobalStyles } from './lib/patch-global-styles';
-import { scanUiImports } from './lib/scan-ui-imports';
 import { AuthGeneratorSchema } from './schema';
 
 /** Read a component's real exported class name from its own copied source. */
@@ -32,6 +45,9 @@ export default async function (tree: Tree, options: AuthGeneratorSchema) {
   const authType = options.authType ?? 'jwt';
   const storeType = options.storeType ?? 'local';
   const authLayout = options.authLayout ?? 'split';
+  const includeSignup = options.includeSignup ?? true;
+  const includeForgotPassword = options.includeForgotPassword ?? true;
+  const includeChangePassword = options.includeChangePassword ?? true;
 
   // Not meant to be run twice against the same project — a second run would
   // duplicate the `auth` route branch and the app.config.ts providers (neither
@@ -47,12 +63,19 @@ export default async function (tree: Tree, options: AuthGeneratorSchema) {
   }
 
   // 1. Core auth files — service/interceptor for BOTH strategies, storage seam,
-  // mock backend, models — copied once, then the strategy that wasn't chosen is
-  // dropped (mirrors the "copy then delete what doesn't apply" idiom already
-  // used elsewhere in this project, e.g. the language-switcher cleanup in
-  // `foundation:layout`).
+  // mock backend, models, and the `AUTH_FEATURES` token (`auth-features.token.ts.template`
+  // — the one file here that's genuinely EJS-substituted, always copied
+  // regardless of which of the three flags below are set, since the
+  // always-present `login-form` always depends on it) — copied once, then the
+  // strategy that wasn't chosen is dropped (mirrors the "copy then delete what
+  // doesn't apply" idiom already used elsewhere in this project, e.g. the
+  // language-switcher cleanup in `foundation:layout`).
   const authCoreDir = `${appRoot}/src/app/core/auth`;
-  generateFiles(tree, joinPathFragments(__dirname, 'files/core/auth'), authCoreDir, {});
+  generateFiles(tree, joinPathFragments(__dirname, 'files/core/auth'), authCoreDir, {
+    includeSignup,
+    includeForgotPassword,
+    includeChangePassword,
+  });
   if (authType === 'jwt') {
     tree.delete(`${authCoreDir}/session-auth.service.ts`);
     tree.delete(`${authCoreDir}/session-auth.interceptor.ts`);
@@ -61,12 +84,29 @@ export default async function (tree: Tree, options: AuthGeneratorSchema) {
     tree.delete(`${authCoreDir}/jwt-auth.interceptor.ts`);
   }
 
-  // 2. Forms — always, regardless of parameters. `login-form.ts.template` is the
-  // only one that varies with `authType` (which service it injects).
+  // 2. Forms. `login-form` is always copied — it's the one form with no flag of
+  // its own. `login-form.ts.template` varies with `authType` (which service it
+  // injects) and always reads `AUTH_FEATURES` to decide whether to render its
+  // "Sign up" / "Forgot password?" links (see the token above). Every other
+  // form is copied unconditionally here too, then dropped per its own flag —
+  // same "copy then delete" idiom as step 1, chosen over teaching `generateFiles`
+  // a per-subfolder skip list. Forgot-password's three steps are gated together
+  // (one linear flow, one flag — partial steps don't make sense standalone).
   const formsDir = `${appRoot}/src/app/features/auth/forms`;
   generateFiles(tree, joinPathFragments(__dirname, 'files/features/auth/forms'), formsDir, {
     authType,
   });
+  if (!includeSignup) {
+    tree.delete(`${formsDir}/signup-form`);
+  }
+  if (!includeForgotPassword) {
+    tree.delete(`${formsDir}/forgot-password-email-form`);
+    tree.delete(`${formsDir}/forgot-password-code-form`);
+    tree.delete(`${formsDir}/forgot-password-new-password-form`);
+  }
+  if (!includeChangePassword) {
+    tree.delete(`${formsDir}/change-password-form`);
+  }
 
   // 3. Auth layout shell — composed into `foundation:layout` rather than owning
   // a second copy of the shell/UI-dependency-resolution logic. `wireRoutes:
@@ -97,53 +137,76 @@ export default async function (tree: Tree, options: AuthGeneratorSchema) {
   });
 
   // 4. Route wiring — a brand-new, protected top-level `auth` branch, never
-  // swept into whatever main shell exists now or gets added later.
+  // swept into whatever main shell exists now or gets added later. `children`
+  // is assembled conditionally: `login` is always first (no flag of its own),
+  // everything else is pushed only if its flag is true — mirrors the
+  // conditional copying in step 2 above, one-to-one.
+  const children: LayoutBranchChild[] = [
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    {
+      path: 'login',
+      componentImportPath: './features/auth/forms/login-form/login-form',
+      componentClassName: readClassName(tree, `${formsDir}/login-form/login-form.ts`),
+    },
+  ];
+  if (includeSignup) {
+    children.push({
+      path: 'signup',
+      componentImportPath: './features/auth/forms/signup-form/signup-form',
+      componentClassName: readClassName(tree, `${formsDir}/signup-form/signup-form.ts`),
+    });
+  }
+  if (includeForgotPassword) {
+    children.push({
+      path: 'forgot-password',
+      children: [
+        { path: '', redirectTo: 'email', pathMatch: 'full' },
+        {
+          path: 'email',
+          componentImportPath:
+            './features/auth/forms/forgot-password-email-form/forgot-password-email-form',
+          componentClassName: readClassName(
+            tree,
+            `${formsDir}/forgot-password-email-form/forgot-password-email-form.ts`,
+          ),
+        },
+        {
+          path: 'code',
+          componentImportPath:
+            './features/auth/forms/forgot-password-code-form/forgot-password-code-form',
+          componentClassName: readClassName(
+            tree,
+            `${formsDir}/forgot-password-code-form/forgot-password-code-form.ts`,
+          ),
+        },
+        {
+          path: 'new',
+          componentImportPath:
+            './features/auth/forms/forgot-password-new-password-form/forgot-password-new-password-form',
+          componentClassName: readClassName(
+            tree,
+            `${formsDir}/forgot-password-new-password-form/forgot-password-new-password-form.ts`,
+          ),
+        },
+      ],
+    });
+  }
+  if (includeChangePassword) {
+    children.push({
+      path: 'change-password',
+      componentImportPath: './features/auth/forms/change-password-form/change-password-form',
+      componentClassName: readClassName(
+        tree,
+        `${formsDir}/change-password-form/change-password-form.ts`,
+      ),
+    });
+  }
+
   addLayoutBranch(tree, appRoot, {
     path: 'auth',
     layoutImportPath: `./layout/${layoutName}/${layoutName}`,
     layoutClassName,
-    children: [
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
-      {
-        path: 'login',
-        componentImportPath: './features/auth/forms/login-form/login-form',
-        componentClassName: 'LoginForm',
-      },
-      {
-        path: 'signup',
-        componentImportPath: './features/auth/forms/signup-form/signup-form',
-        componentClassName: 'SignupForm',
-      },
-      {
-        path: 'forgot-password',
-        children: [
-          { path: '', redirectTo: 'email', pathMatch: 'full' },
-          {
-            path: 'email',
-            componentImportPath:
-              './features/auth/forms/forgot-password-email-form/forgot-password-email-form',
-            componentClassName: 'ForgotPasswordEmailForm',
-          },
-          {
-            path: 'code',
-            componentImportPath:
-              './features/auth/forms/forgot-password-code-form/forgot-password-code-form',
-            componentClassName: 'ForgotPasswordCodeForm',
-          },
-          {
-            path: 'new',
-            componentImportPath:
-              './features/auth/forms/forgot-password-new-password-form/forgot-password-new-password-form',
-            componentClassName: 'ForgotPasswordNewPasswordForm',
-          },
-        ],
-      },
-      {
-        path: 'change-password',
-        componentImportPath: './features/auth/forms/change-password-form/change-password-form',
-        componentClassName: 'ChangePasswordForm',
-      },
-    ],
+    children,
   });
 
   // 5. app.config.ts patching — token-storage provider + the chosen
@@ -187,7 +250,29 @@ export default async function (tree: Tree, options: AuthGeneratorSchema) {
 
   // 8. Manifest. `layouts` / `protectedRouteBranches` were already populated as
   // a side effect of steps 3 and 4 (the `layout` and `addLayoutBranch` calls).
+  // `modules` (the generic idempotency array every pillar generator pushes a
+  // plain name into, via `appendToManifest` — also what the no-op check at the
+  // top of this function reads) only ever holds the string `'auth'`; the
+  // richer per-module record — which strategy, which flags — doesn't fit that
+  // shared string-array shape, so it lives in its own `authConfig` field
+  // instead, written directly.
   appendToManifest(tree, appRoot, 'modules', 'auth');
+  if (tree.exists(manifestPath)) {
+    updateJson(tree, manifestPath, (json) => {
+      json.authConfig = {
+        name: 'auth',
+        authType,
+        storeType,
+        authLayout,
+        features: {
+          signup: includeSignup,
+          forgotPassword: includeForgotPassword,
+          changePassword: includeChangePassword,
+        },
+      };
+      return json;
+    });
+  }
 
   await formatFiles(tree);
 }

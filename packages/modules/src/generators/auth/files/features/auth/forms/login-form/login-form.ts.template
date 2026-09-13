@@ -11,6 +11,7 @@ import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmInput } from '@blueprint-platform/ui/input';
 import { HlmInputGroupImports } from '@blueprint-platform/ui/input-group';
 import { HlmSpinner } from '@blueprint-platform/ui/spinner';
+import { AUTH_FEATURES } from '../../../../core/auth/auth-features.token';
 <% if (authType === 'session') { -%>
 import { SessionAuthService } from '../../../../core/auth/session-auth.service';
 <% } else { -%>
@@ -49,6 +50,7 @@ export class LoginForm {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly auth = inject(<% if (authType === 'session') { %>SessionAuthService<% } else { %>JwtAuthService<% } %>);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly authFeatures = inject(AUTH_FEATURES);
 
   protected readonly pending = signal(false);
   protected readonly serverError = signal<string | null>(null);

@@ -27,3 +27,12 @@
     color: var(--primary);
   }
 }
+
+[data-slot='accordion-trigger'][aria-expanded='true']
+  [data-slot='accordion-trigger-icon']:first-of-type {
+  display: none !important;
+}
+[data-slot='accordion-trigger']:not([aria-expanded='true'])
+  [data-slot='accordion-trigger-icon']:last-of-type {
+  display: none !important;
+}

@@ -123,6 +123,27 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
     routing: false,
   });
 
+  // Branding: favicon + logo — unconditional, not gated behind `layout` or any
+  // other option (unlike the theme/language switcher pieces). Read + written as
+  // raw `Buffer`s, never through `generateFiles` — `generateFiles` treats file
+  // content as an EJS template, and running that parse over arbitrary binary
+  // image bytes risks corrupting or mis-re-encoding them. `assets/` (not
+  // `files/`) is a deliberately different source folder name from every other
+  // `files/**` payload tree in this generator, so it's never accidentally swept
+  // up by a `files/**` glob rule. `applicationGenerator` above already scaffolds
+  // a placeholder `public/favicon.ico` and an `index.html` `<link rel="icon">`
+  // pointing at it — this overwrites that placeholder with the real one rather
+  // than adding a second favicon reference.
+  const assetsDir = joinPathFragments(__dirname, 'assets');
+  tree.write(
+    `${appRoot}/public/favicon.ico`,
+    readFileSync(joinPathFragments(assetsDir, 'favicon.ico')),
+  );
+  tree.write(
+    `${appRoot}/public/branding/logo.png`,
+    readFileSync(joinPathFragments(assetsDir, 'branding/logo.png')),
+  );
+
   updateJson(tree, 'package.json', (json) => {
     json.dependencies ??= {};
     json.devDependencies ??= {};

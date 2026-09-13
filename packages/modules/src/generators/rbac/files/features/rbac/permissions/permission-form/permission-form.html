@@ -1,0 +1,103 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="mx-auto grid w-full max-w-2xl gap-6 p-4 sm:p-6"
+>
+  <header class="grid gap-1">
+    <h1 class="text-xl font-semibold tracking-tight">
+      {{ isEditMode ? 'Edit permission' : 'New permission' }}
+    </h1>
+    <p class="text-muted-foreground text-sm">
+      A permission belongs to one module and can require other permissions.
+    </p>
+  </header>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <hlm-field>
+      <label hlmFieldLabel for="perm-module">Module</label>
+      <hlm-native-select id="perm-module" formControlName="moduleId">
+        <option hlmNativeSelectOption value="" disabled>Select a module</option>
+        @for (m of permissionsService.modules(); track m.id) {
+          <option hlmNativeSelectOption [value]="m.id">{{ m.name }}</option>
+        }
+        <option hlmNativeSelectOption [value]="newModuleSentinel">+ Add new module…</option>
+      </hlm-native-select>
+      <hlm-field-error validator="required">Choose or create a module.</hlm-field-error>
+    </hlm-field>
+
+    @if (form.controls.moduleId.value === newModuleSentinel) {
+      <hlm-field>
+        <label hlmFieldLabel for="perm-new-module">New module name</label>
+        <input hlmInput id="perm-new-module" formControlName="newModuleName" />
+      </hlm-field>
+    }
+
+    <hlm-field>
+      <label hlmFieldLabel for="perm-label">Label</label>
+      <input hlmInput id="perm-label" formControlName="label" placeholder="Delete users" />
+      <hlm-field-error validator="required">Label is required.</hlm-field-error>
+    </hlm-field>
+
+    <hlm-field>
+      <label hlmFieldLabel for="perm-key">Key</label>
+      <input hlmInput id="perm-key" formControlName="key" placeholder="users.delete" />
+      <hlm-field-error validator="required">Key is required.</hlm-field-error>
+      <hlm-field-error validator="pattern"
+        >Use dotted lowercase, e.g. "module.action".</hlm-field-error
+      >
+    </hlm-field>
+  </div>
+
+  <label class="flex items-center gap-2 text-sm select-none">
+    <hlm-checkbox formControlName="isModuleRoot" />
+    This is the module's main permission (grants access to the module at all)
+  </label>
+
+  <div class="grid gap-3">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-sm font-medium">Depends on</h2>
+      <hlm-field class="max-w-[14rem]">
+        <input
+          hlmInput
+          placeholder="Search permissions…"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+      </hlm-field>
+    </div>
+
+    @if (dependencyGroups().length === 0) {
+      <p class="text-muted-foreground text-sm">No matching permissions.</p>
+    }
+
+    <div class="grid max-h-80 gap-4 overflow-y-auto rounded-lg border p-3">
+      @for (group of dependencyGroups(); track group.module.id) {
+        <div class="grid gap-2">
+          <p class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            {{ group.module.name }}
+          </p>
+          @for (row of group.rows; track row.permission.id) {
+            <label
+              class="flex items-center gap-2 text-sm select-none"
+              [class.opacity-50]="row.disabledByCycle"
+              [title]="row.disabledByCycle ? 'Would create a circular dependency' : ''"
+            >
+              <hlm-checkbox
+                [checked]="row.checked"
+                [disabled]="row.disabledByCycle"
+                (checkedChange)="toggleDependency(row.permission.id, $event)"
+              />
+              {{ row.permission.label }}
+              <span class="text-muted-foreground">({{ row.permission.key }})</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button hlmBtn type="submit">{{ isEditMode ? 'Save changes' : 'Create permission' }}</button>
+    <a hlmBtn variant="outline" [routerLink]="isEditMode ? ['..', '..'] : ['..']">Cancel</a>
+  </div>
+</form>

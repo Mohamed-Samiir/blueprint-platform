@@ -1,0 +1,104 @@
+<div class="mx-auto grid w-full max-w-4xl gap-4 p-4 sm:p-6">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div class="grid gap-1">
+      <h1 class="text-xl font-semibold tracking-tight">Users</h1>
+      <p class="text-muted-foreground text-sm">Everyone with an account.</p>
+    </div>
+    <a hlmBtn routerLink="new">
+      <ng-icon name="lucidePlus" data-icon="inline-start" />
+      New user
+    </a>
+  </header>
+
+  <div hlmTableContainer class="rounded-lg border">
+    <table hlmTable>
+      <thead hlmTHead class="bg-muted/60">
+        <tr>
+          <th
+            hlmTh
+            class="text-muted-foreground w-12 text-xs font-semibold tracking-wide uppercase"
+          ></th>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Username
+          </th>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Email
+          </th>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Account role
+          </th>
+          <th hlmTh class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Status
+          </th>
+          <th
+            hlmTh
+            class="text-muted-foreground text-end text-xs font-semibold tracking-wide uppercase"
+          >
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody hlmTBody>
+        @for (user of users(); track user.id) {
+          <tr
+            hlmTr
+            class="border-s-2 border-s-transparent transition-colors hover:border-s-primary"
+          >
+            <td hlmTd>
+              <hlm-avatar>
+                @if (user.profileImage) {
+                  <img hlmAvatarImage [src]="user.profileImage" alt="" />
+                }
+                <span hlmAvatarFallback>{{ initials(user.username) }}</span>
+              </hlm-avatar>
+            </td>
+            <td hlmTd class="font-medium">{{ user.username }}</td>
+            <td hlmTd>{{ user.email }}</td>
+            <td hlmTd>{{ user.accountRole }}</td>
+            <td hlmTd>
+              <span hlmBadge [variant]="user.status === 'active' ? 'default' : 'outline'">
+                {{ user.status === 'active' ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td hlmTd class="text-end">
+              <button
+                type="button"
+                [hlmDropdownMenuTrigger]="menu"
+                hlmBtn
+                variant="ghost"
+                size="icon-sm"
+                aria-label="User actions"
+              >
+                <ng-icon name="lucideEllipsisVertical" />
+              </button>
+              <ng-template #menu>
+                <hlm-dropdown-menu class="w-48">
+                  <button hlmDropdownMenuItem (click)="openDetails(user)">View details</button>
+                  <button
+                    hlmDropdownMenuItem
+                    [routerLink]="[user.id, 'edit']"
+                  >
+                    Edit
+                  </button>
+                  <button hlmDropdownMenuItem (click)="openChangeRole(user)">Change role</button>
+                  <hlm-dropdown-menu-separator />
+                  <button hlmDropdownMenuItem (click)="openDeactivate(user)">
+                    {{ user.status === 'active' ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </hlm-dropdown-menu>
+              </ng-template>
+            </td>
+          </tr>
+        } @empty {
+          <tr hlmTr>
+            <td hlmTd colspan="6" class="text-muted-foreground text-center">No users yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-details-user #detailsDialog />
+<app-deactivate-confirm #deactivateDialog (changed)="reload()" />
+<app-change-role-dialog #changeRoleDialog (changed)="reload()" />

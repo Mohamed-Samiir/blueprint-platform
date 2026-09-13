@@ -16,7 +16,13 @@ export interface LayoutBranchChild {
   children?: LayoutBranchChild[];
 }
 
-function renderChild(child: LayoutBranchChild): string {
+/**
+ * Serialize one {@link LayoutBranchChild} (recursively) into route-object
+ * source text. Exported so {@link import('./append-child-routes').appendChildRoutes}
+ * can reuse the exact same recursive rendering instead of duplicating it —
+ * both helpers build a route tree from the same shape.
+ */
+export function renderChild(child: LayoutBranchChild): string {
   const parts = [`path: '${child.path}'`];
   if (child.redirectTo !== undefined) {
     parts.push(`redirectTo: '${child.redirectTo}'`);

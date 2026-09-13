@@ -166,6 +166,91 @@ describe('modules:auth generator', () => {
     expect(second.split("[data-slot='input-group'] [data-slot='input-group-control']").length).toBe(2);
   });
 
+  it('always copies login-form and auth-features.token.ts regardless of flags', async () => {
+    await authGenerator(tree, {
+      includeSignup: false,
+      includeForgotPassword: false,
+      includeChangePassword: false,
+    });
+    expect(tree.exists('src/app/features/auth/forms/login-form/login-form.ts')).toBe(true);
+    expect(tree.exists('src/app/core/auth/auth-features.token.ts')).toBe(true);
+  });
+
+  it('omits signup-form when includeSignup is false, keeps it by default', async () => {
+    await authGenerator(tree, { includeSignup: false });
+    expect(tree.exists('src/app/features/auth/forms/signup-form')).toBe(false);
+    const out = tree.read('src/app/app.routes.ts', 'utf-8') ?? '';
+    expect(out).not.toContain('SignupForm');
+    expect(out).not.toContain(`path: 'signup'`);
+  });
+
+  it('includes signup-form by default (includeSignup defaults to true)', async () => {
+    await authGenerator(tree, {});
+    expect(tree.exists('src/app/features/auth/forms/signup-form')).toBe(true);
+  });
+
+  it('omits all three forgot-password steps together when includeForgotPassword is false', async () => {
+    await authGenerator(tree, { includeForgotPassword: false });
+    for (const form of [
+      'forgot-password-email-form',
+      'forgot-password-code-form',
+      'forgot-password-new-password-form',
+    ]) {
+      expect(tree.exists(`src/app/features/auth/forms/${form}`)).toBe(false);
+    }
+    const out = tree.read('src/app/app.routes.ts', 'utf-8') ?? '';
+    expect(out).not.toContain(`path: 'forgot-password'`);
+    expect(out).not.toContain('ForgotPasswordEmailForm');
+  });
+
+  it('omits change-password-form when includeChangePassword is false', async () => {
+    await authGenerator(tree, { includeChangePassword: false });
+    expect(tree.exists('src/app/features/auth/forms/change-password-form')).toBe(false);
+    const out = tree.read('src/app/app.routes.ts', 'utf-8') ?? '';
+    expect(out).not.toContain('ChangePasswordForm');
+    expect(out).not.toContain(`path: 'change-password'`);
+  });
+
+  it('renders auth-features.token.ts with the chosen flag values substituted', async () => {
+    await authGenerator(tree, {
+      includeSignup: false,
+      includeForgotPassword: true,
+      includeChangePassword: false,
+    });
+    const out = tree.read('src/app/core/auth/auth-features.token.ts', 'utf-8') ?? '';
+    expect(out).toContain('signup: false');
+    expect(out).toContain('forgotPassword: true');
+    expect(out).toContain('changePassword: false');
+  });
+
+  it('login-form.ts injects AUTH_FEATURES regardless of which flags are set', async () => {
+    await authGenerator(tree, { includeSignup: false });
+    const out = tree.read('src/app/features/auth/forms/login-form/login-form.ts', 'utf-8') ?? '';
+    expect(out).toContain('AUTH_FEATURES');
+    expect(out).toContain('inject(AUTH_FEATURES)');
+  });
+
+  it('records the three flags in manifest.authConfig alongside authType/storeType/authLayout', async () => {
+    await authGenerator(tree, {
+      authType: 'session',
+      storeType: 'memory',
+      authLayout: 'centered',
+      includeSignup: false,
+      includeForgotPassword: true,
+      includeChangePassword: false,
+    });
+    const manifest = readJson(tree, '.blueprint/manifest.json');
+    expect(manifest.authConfig).toEqual({
+      name: 'auth',
+      authType: 'session',
+      storeType: 'memory',
+      authLayout: 'centered',
+      features: { signup: false, forgotPassword: true, changePassword: false },
+    });
+    // The generic idempotency array is untouched by the richer record.
+    expect(manifest.modules).toEqual(['auth']);
+  });
+
   it('is a no-op on a second run — does not duplicate the auth route branch', async () => {
     await authGenerator(tree, {});
     await authGenerator(tree, {});

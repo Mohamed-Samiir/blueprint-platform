@@ -4,6 +4,16 @@
       "factory": "./dist/generators/auth/auth",
       "schema": "./dist/generators/auth/schema.json",
       "description": "Add the auth module (core service/interceptor, storage seam, forms, layout, routing) to an existing project"
+    },
+    "rbac": {
+      "factory": "./dist/generators/rbac/rbac",
+      "schema": "./dist/generators/rbac/schema.json",
+      "description": "Add the RBAC (roles & permissions) module — fully decoupled from modules:auth — to an existing project"
+    },
+    "user-management": {
+      "factory": "./dist/generators/user-management/user-management",
+      "schema": "./dist/generators/user-management/schema.json",
+      "description": "Add the user-management module — fully decoupled from modules:auth and modules:rbac — to an existing project"
     }
   }
 }

@@ -1,0 +1,34 @@
+import { InjectionToken } from '@angular/core';
+
+/**
+ * Which optional auth forms/routes exist in this project. `login-form` is the
+ * one form that's *always* generated, and it links to `signup` and
+ * `forgot-password` — but those routes only exist if the corresponding
+ * generator flag (`includeSignup` / `includeForgotPassword`) was `true`.
+ * Without this, an unlucky flag combination leaves a dangling link to a route
+ * that was never wired up. `login-form` reads this token and conditionally
+ * renders each link — that conditional lives once, in the form's own
+ * template, so `login-form` never needs per-flag templating of its own.
+ *
+ * `providedIn: 'root'` + factory makes it self-registering, same pattern as
+ * `API_URL` / `BLUEPRINT_CONFIG` — no provider entry in `app.config.ts`
+ * needed. Values are baked in at generation time from the `includeSignup` /
+ * `includeForgotPassword` / `includeChangePassword` schema options — this is
+ * the one file in the whole auth module that needs `.template` EJS
+ * substitution; every other form (besides `login-form.ts.template`'s existing
+ * `authType` substitution) is a zero-edit copy.
+ */
+export interface AuthFeatures {
+  signup: boolean;
+  forgotPassword: boolean;
+  changePassword: boolean;
+}
+
+export const AUTH_FEATURES = new InjectionToken<AuthFeatures>('AUTH_FEATURES', {
+  providedIn: 'root',
+  factory: () => ({
+    signup: <%= includeSignup %>,
+    forgotPassword: <%= includeForgotPassword %>,
+    changePassword: <%= includeChangePassword %>,
+  }),
+});

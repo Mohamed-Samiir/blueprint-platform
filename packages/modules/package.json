@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/modules",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "publishConfig": {
     "access": "public"
   },
@@ -62,6 +62,36 @@
               "input": "./packages/modules/src/generators/auth/files/features",
               "glob": "**/*.ts",
               "output": "./generators/auth/files/features"
+            },
+            {
+              "input": "./packages/modules/src/generators/rbac",
+              "glob": "schema.json",
+              "output": "./generators/rbac"
+            },
+            {
+              "input": "./packages/modules/src/generators/rbac/files/core",
+              "glob": "**/*.ts",
+              "output": "./generators/rbac/files/core"
+            },
+            {
+              "input": "./packages/modules/src/generators/rbac/files/features",
+              "glob": "**/*.ts",
+              "output": "./generators/rbac/files/features"
+            },
+            {
+              "input": "./packages/modules/src/generators/user-management",
+              "glob": "schema.json",
+              "output": "./generators/user-management"
+            },
+            {
+              "input": "./packages/modules/src/generators/user-management/files/core",
+              "glob": "**/*.ts",
+              "output": "./generators/user-management/files/core"
+            },
+            {
+              "input": "./packages/modules/src/generators/user-management/files/features",
+              "glob": "**/*.ts",
+              "output": "./generators/user-management/files/features"
             }
           ]
         }
@@ -73,6 +103,6 @@
     "@nx/devkit": "23.1.1",
     "@blueprint-platform/foundation": "^0.1.26",
     "@blueprint-platform/components": "^0.1.3",
-    "@blueprint-platform/generator-kit": "^0.1.1"
+    "@blueprint-platform/generator-kit": "^0.1.3"
   }
 }
