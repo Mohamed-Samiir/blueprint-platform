@@ -40,7 +40,14 @@ function makeTree(routesTemplate = FLAT_ROUTES): Tree {
 
 const SHELL_HTML = `<ul hlmSidebarMenu>
   <li hlmSidebarMenuItem>
-    <a routerLink="/" [tooltip]="'Welcome'">
+    <a
+      routerLink="/"
+      routerLinkActive
+      [routerLinkActiveOptions]="{ exact: true }"
+      #rlaWelcome="routerLinkActive"
+      [isActive]="rlaWelcome.isActive"
+      [tooltip]="'Welcome'"
+    >
       <ng-icon name="lucideHouse" />
       <span>Welcome</span>
     </a>
@@ -79,16 +86,17 @@ describe('modules:user-management generator', () => {
 
   it('copies core/user-management files', async () => {
     await userManagementGenerator(tree, {});
-    for (const f of [
-      'models.ts',
-      'role-options.data.ts',
-      'user-id.ts',
-      'user-mock.data.ts',
-      'user-storage.ts',
-      'user.service.ts',
-    ]) {
+    for (const f of ['role-options.data.ts', 'user-id.ts', 'user-mock.data.ts', 'user-storage.ts']) {
       expect(tree.exists(`src/app/core/user-management/${f}`)).toBe(true);
     }
+  });
+
+  it('puts the model under features/user-management/models and the service under features/user-management/services, not core/', async () => {
+    await userManagementGenerator(tree, {});
+    expect(tree.exists('src/app/features/user-management/models/models.ts')).toBe(true);
+    expect(tree.exists('src/app/features/user-management/services/user.service.ts')).toBe(true);
+    expect(tree.exists('src/app/core/user-management/models.ts')).toBe(false);
+    expect(tree.exists('src/app/core/user-management/user.service.ts')).toBe(false);
   });
 
   it('copies the routed pages, the shared form, and all three dialogs, but no preview scaffolding', async () => {
@@ -213,5 +221,13 @@ describe('modules:user-management generator', () => {
     };
     walk('src/app/core/user-management');
     walk('src/app/features/user-management');
+  });
+
+  it('--list prints a one-line self-description and exits without writing anything', async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    await userManagementGenerator(tree, { list: true });
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('user-management'));
+    expect(tree.exists('src/app/core/user-management')).toBe(false);
+    logSpy.mockRestore();
   });
 });

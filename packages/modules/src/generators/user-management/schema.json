@@ -6,6 +6,11 @@
   "description": "Copy the user-management module — ManagedUser model, mock-backed UserService (UserStorage-backed), the users list (avatar thumbnail, status badge, row actions), add/edit forms (shared UserForm), and the details/change-role/deactivate dialogs — into an existing project, and wire its routes as ordinary children of whatever main shell already exists (or as flat top-level routes if there is none). Zero dependency on modules:auth or modules:rbac in either direction — a deliberately simpler sync than either: no cross-module coupling to manage, no special layout needed, reuses generator-kit's appendChildRoutes built for RBAC unchanged.",
   "type": "object",
   "properties": {
+    "list": {
+      "type": "boolean",
+      "description": "Print a one-line self-description and exit without writing anything.",
+      "default": false
+    },
     "routePrefix": {
       "type": "string",
       "description": "Where the users list mounts, e.g. '<routePrefix>' (the list itself), '<routePrefix>/new', '<routePrefix>/:id/edit'. The one configurable option — this module has no runtime-strategy branch to parameterize the way auth does.",

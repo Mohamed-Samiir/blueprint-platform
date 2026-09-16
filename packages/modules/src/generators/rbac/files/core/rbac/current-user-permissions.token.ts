@@ -1,5 +1,5 @@
 import { InjectionToken, inject } from '@angular/core';
-import { RbacDemoSessionService } from './rbac-demo-session.service';
+import { RbacDemoSessionService } from '../../features/rbac/services/rbac-demo-session.service';
 
 /**
  * RBAC's sole contract for "resolve the current user's permissions" — the

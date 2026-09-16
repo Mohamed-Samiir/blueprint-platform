@@ -1,0 +1,59 @@
+{
+  "name": "@blueprint-platform/cli",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "blueprint": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@blueprint-platform/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "options": {
+          "outputPath": "packages/cli/dist",
+          "main": "packages/cli/src/index.ts",
+          "tsConfig": "packages/cli/tsconfig.lib.json",
+          "rootDir": "packages/cli/src",
+          "generatePackageJson": false,
+          "assets": [
+            {
+              "input": "./packages/cli/src",
+              "glob": "**/!(*.ts)",
+              "output": "."
+            },
+            {
+              "input": "./packages/cli/src",
+              "glob": "**/*.d.ts",
+              "output": "."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@blueprint-platform/cli-core": "^0.1.0",
+    "@clack/prompts": "^1.8.1",
+    "tslib": "^2.3.0"
+  }
+}

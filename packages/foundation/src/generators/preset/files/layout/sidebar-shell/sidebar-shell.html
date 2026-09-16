@@ -41,8 +41,9 @@
                 hlmSidebarMenuButton
                 routerLink="/"
                 routerLinkActive
-                #rla="routerLinkActive"
-                [isActive]="rla.isActive"
+                [routerLinkActiveOptions]="{ exact: true }"
+                #rlaWelcome="routerLinkActive"
+                [isActive]="rlaWelcome.isActive"
                 [tooltip]="'Welcome'"
               >
                 <ng-icon name="lucideHouse" />

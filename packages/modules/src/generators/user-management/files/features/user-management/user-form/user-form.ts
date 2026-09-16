@@ -18,7 +18,7 @@ import { HlmInputGroupImports } from '@blueprint-platform/ui/input-group';
 import { HlmNativeSelectImports } from '@blueprint-platform/ui/native-select';
 import { HlmSwitchImports } from '@blueprint-platform/ui/switch';
 import { ROLE_OPTIONS } from '../../../core/user-management/role-options.data';
-import type { ManagedUser } from '../../../core/user-management/models';
+import type { ManagedUser } from '../models/models';
 
 export interface UserFormValue {
   username: string;

@@ -6,6 +6,11 @@
   "description": "Copy the auth module (core service/interceptor for the chosen strategy, storage seam, forms) into an existing project, add the chosen auth layout (via foundation:layout), and wire the `auth` route branch.",
   "type": "object",
   "properties": {
+    "list": {
+      "type": "boolean",
+      "description": "Print a one-line self-description and exit without writing anything.",
+      "default": false
+    },
     "authType": {
       "type": "string",
       "enum": ["jwt", "session"],

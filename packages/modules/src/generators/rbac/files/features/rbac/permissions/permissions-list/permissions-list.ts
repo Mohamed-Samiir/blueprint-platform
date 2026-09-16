@@ -15,10 +15,10 @@ import { HlmAccordionImports } from '@blueprint-platform/ui/accordion';
 import { HlmButtonImports } from '@blueprint-platform/ui/button';
 import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmInput } from '@blueprint-platform/ui/input';
-import type { Permission } from '../../../../core/rbac/models';
+import type { Permission } from '../../models/models';
 import { resolveDependents } from '../../../../core/rbac/permission-graph';
-import { PermissionsService } from '../../../../core/rbac/permissions.service';
-import { RolesService } from '../../../../core/rbac/roles.service';
+import { PermissionsService } from '../../services/permissions.service';
+import { RolesService } from '../../services/roles.service';
 
 /**
  * The implied-but-unstated permissions list (Task 4.1) — module name as a

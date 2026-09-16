@@ -19,9 +19,9 @@ import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmInput } from '@blueprint-platform/ui/input';
 import { HlmPaginationImports } from '@blueprint-platform/ui/pagination';
 import { HlmTableImports } from '@blueprint-platform/ui/table';
-import type { Role } from '../../../../core/rbac/models';
+import type { Role } from '../../models/models';
 import { usersForRole } from '../../../../core/rbac/mock-users.data';
-import { RolesService } from '../../../../core/rbac/roles.service';
+import { RolesService } from '../../services/roles.service';
 
 type DeleteOrDeactivate = 'delete' | 'deactivate';
 

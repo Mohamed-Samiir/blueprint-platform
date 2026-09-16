@@ -11,14 +11,20 @@ import { scanUiImports } from '../shared/scan-ui-imports';
 import { RbacGeneratorSchema } from './schema';
 
 /**
- * Add the RBAC module to an existing project: permission/role models +
- * services (backed by `RbacStorage`, a `localStorage` wrapper — a stand-in for
- * a real backend, same mock-persistence choice `modules:auth` makes),
- * `CURRENT_USER_PERMISSIONS` + its self-contained `RbacDemoSessionService`
- * default, `permissionGuard`, the permissions/roles admin pages, and the
- * `forbidden` deny-path page — then wires it all as ORDINARY feature routes
- * inside whatever main shell already exists (`appendChildRoutes`), never a
- * standalone sibling branch the way `modules:auth`'s login/signup pages are.
+ * Add the RBAC module to an existing project: permission/role models
+ * (`features/rbac/models/`) + services (`features/rbac/services/`, backed by
+ * `RbacStorage`, a `localStorage` wrapper — a stand-in for a real backend,
+ * same mock-persistence choice `modules:auth` makes), `CURRENT_USER_PERMISSIONS`
+ * + its self-contained `RbacDemoSessionService` default, `permissionGuard`,
+ * the permissions/roles admin pages, and the `forbidden` deny-path page —
+ * then wires it all as ORDINARY feature routes inside whatever main shell
+ * already exists (`appendChildRoutes`), never a standalone sibling branch the
+ * way `modules:auth`'s login/signup pages are. **Models/services live under
+ * the module's own `features/rbac/`, not `core/`** — `core/rbac/` is reserved
+ * for the cross-cutting pieces (`permissionGuard`, `RbacStorage`,
+ * `rbac-id.ts`, `permission-graph.ts`, mock data, the
+ * `CURRENT_USER_PERMISSIONS` token) that aren't the module's own domain
+ * models/services the way `PermissionsService`/`RolesService`/`models.ts` are.
  *
  * **Deliberately has no relationship with `modules:auth`, in either
  * direction** — no dependency on `@blueprint-platform/foundation` even (unlike
@@ -29,6 +35,14 @@ import { RbacGeneratorSchema } from './schema';
  * real project provides in its own `app.config.ts`.
  */
 export default async function (tree: Tree, options: RbacGeneratorSchema) {
+  // No real file-based catalog to discover (unlike layout/components) — a
+  // fixed one-line self-description, for interface consistency with `--list`
+  // elsewhere. See tasks/task-cli-core-and-cli.md Part B3.
+  if (options.list) {
+    console.log('rbac — Roles & permissions module, works standalone.');
+    return;
+  }
+
   const appRoot = '.';
   const routePrefix = options.routePrefix ?? 'admin';
 

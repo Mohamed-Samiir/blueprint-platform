@@ -17,6 +17,11 @@
       "description": "Add every available UI component not already present in the project.",
       "default": false
     },
+    "list": {
+      "type": "boolean",
+      "description": "Print every available UI component name and exit without writing anything.",
+      "default": false
+    },
     "project": {
       "type": "string",
       "description": "Path to the project root to add components into.",

@@ -10,8 +10,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BrnAlertDialogContent } from '@spartan-ng/brain/alert-dialog';
 import { HlmAlertDialog, HlmAlertDialogImports } from '@blueprint-platform/ui/alert-dialog';
-import type { ManagedUser } from '../../../core/user-management/models';
-import { UserService } from '../../../core/user-management/user.service';
+import type { ManagedUser } from '../models/models';
+import { UserService } from '../services/user.service';
 
 /**
  * Deactivate/activate confirmation (Task 3.6). No generic confirm-dialog

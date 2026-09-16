@@ -38,5 +38,12 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@spartan-ng/brain": "^1.0.0",
+    "@ng-icons/core": "^32.0.0",
+    "@ng-icons/lucide": "^32.0.0",
+    "clsx": "^2.1.0",
+    "class-variance-authority": "^0.7.0",
+    "tailwind-merge": "^2.5.0"
+  }
 }

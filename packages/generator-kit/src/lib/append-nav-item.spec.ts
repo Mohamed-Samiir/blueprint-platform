@@ -8,7 +8,14 @@ const TS_PATH = 'src/app/layout/sidebar-shell/sidebar-shell.ts';
 
 const HTML_TEMPLATE = `<ul hlmSidebarMenu>
   <li hlmSidebarMenuItem>
-    <a routerLink="/" [tooltip]="'Welcome'">
+    <a
+      routerLink="/"
+      routerLinkActive
+      [routerLinkActiveOptions]="{ exact: true }"
+      #rlaWelcome="routerLinkActive"
+      [isActive]="rlaWelcome.isActive"
+      [tooltip]="'Welcome'"
+    >
       <ng-icon name="lucideHouse" />
       <span>Welcome</span>
     </a>
@@ -81,6 +88,37 @@ describe('appendNavItem', () => {
     const html = tree.read(HTML_PATH, 'utf-8') ?? '';
     expect(html.indexOf('Welcome')).toBeLessThan(html.indexOf('Roles'));
     expect(html.indexOf('Roles')).toBeLessThan(html.indexOf('Permissions'));
+  });
+
+  it('gives each inserted item its own unique #rla* template reference variable, never the shared literal "rla"', () => {
+    // Regression test: a first version hardcoded the literal `#rla` on every
+    // inserted item. Angular template reference variables share one flat
+    // scope per template, so every `[isActive]="rla.isActive"` binding ended
+    // up reading whichever `RouterLinkActive` instance the template picked —
+    // every nav link showed "active" simultaneously. Each item's variable
+    // name must now be distinct, derived from its own routerLink, and never
+    // the bare `rla` used nowhere anymore (not even for "Welcome", which is
+    // `rlaWelcome` in the real shell templates).
+    const tree = makeTree();
+    appendNavItem(tree, HTML_PATH, { label: 'Roles', routerLink: '/admin/roles', icon: 'lucideShield' });
+    appendNavItem(tree, HTML_PATH, {
+      label: 'Permissions',
+      routerLink: '/admin/permissions',
+      icon: 'lucideKeyRound',
+    });
+    const html = tree.read(HTML_PATH, 'utf-8') ?? '';
+
+    expect(html).toContain('#rlaAdminRoles="routerLinkActive"');
+    expect(html).toContain('[isActive]="rlaAdminRoles.isActive"');
+    expect(html).toContain('#rlaAdminPermissions="routerLinkActive"');
+    expect(html).toContain('[isActive]="rlaAdminPermissions.isActive"');
+
+    // No two items (Welcome included) ever declare the same variable name.
+    const varNames = [...html.matchAll(/#(\w+)="routerLinkActive"/g)].map((m) => m[1]);
+    expect(varNames).toEqual(['rlaWelcome', 'rlaAdminRoles', 'rlaAdminPermissions']);
+    expect(new Set(varNames).size).toBe(varNames.length);
+    // The old, bug-causing literal name must never appear standalone.
+    expect(html).not.toMatch(/#rla="routerLinkActive"/);
   });
 
   it('is idempotent — running with the same routerLink twice does not duplicate the item', () => {

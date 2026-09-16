@@ -1,4 +1,4 @@
-import type { RbacUser } from './models';
+import type { RbacUser } from '../../features/rbac/models/models';
 
 /**
  * Mock "assigned users" — RBAC's own `RbacUser` shape (never `AuthUser` from

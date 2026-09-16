@@ -82,7 +82,6 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
   const appRoot = '.';
   const palette = options.palette ?? 'default';
   const rtl = options.rtl ?? false;
-  const labelPosition = options.labelPosition ?? 'floating';
   const layout = options.layout ?? 'none';
   const showThemeSwitcher = options.showThemeSwitcher ?? true;
   const showLanguageSwitcher = options.showLanguageSwitcher ?? true;
@@ -171,6 +170,13 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
     // here — kept as a devDependency so the project can add one later
     // (`nx g @blueprint-platform/modules:auth`), same as `components` above.
     json.devDependencies['@blueprint-platform/modules'] = compatibility.modules;
+    // The `blueprint` command (`npx blueprint add layout|component|module`) —
+    // kept as a devDependency, same reasoning as `components`/`modules` above.
+    // `@blueprint-platform/cli-core` (the library `cli` itself depends on) is
+    // deliberately NEVER pinned here — same category as `generator-kit`, a
+    // generator/CLI-authoring dependency, not something a generated project
+    // ever needs directly.
+    json.devDependencies['@blueprint-platform/cli'] = compatibility.cli;
 
     // Orval — OpenAPI → typed Angular API client (`npm run generate:api`).
     json.devDependencies['orval'] = '^8.28.1';
@@ -206,7 +212,7 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
     tree,
     joinPathFragments(__dirname, 'files/config'),
     `${appRoot}/src/app/core/config`,
-    { rtl, labelPosition, palette, showThemeSwitcher, showLanguageSwitcher },
+    { rtl, palette, showThemeSwitcher, showLanguageSwitcher },
   );
 
   // Environments (+ the `API_URL` token) — unconditional; API access is not a
@@ -263,7 +269,6 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
   patchAppConfig(tree, appRoot, {
     palette,
     rtl,
-    labelPosition,
     hasLanguageService,
   });
   patchProjectEnvironments(tree, appRoot);
@@ -368,7 +373,6 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
         versions: { ...compatibility },
         palette,
         rtl,
-        labelPosition,
         layout,
         showThemeSwitcher,
         showLanguageSwitcher,

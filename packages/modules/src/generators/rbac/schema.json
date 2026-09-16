@@ -6,6 +6,11 @@
   "description": "Copy the RBAC module — permission/role models + services, the CURRENT_USER_PERMISSIONS token with its self-contained RbacDemoSessionService default, permissionGuard, the permissions/roles admin pages, and the forbidden page — into an existing project, and wire its routes as ordinary children of whatever main shell already exists (or as flat top-level routes if there is none). Deliberately minimal schema: RBAC has no auth-style runtime-strategy branch to parameterize. Fully decoupled from modules:auth in both directions — works standalone with zero auth setup, see CURRENT_USER_PERMISSIONS for the one-line override any real auth setup provides.",
   "type": "object",
   "properties": {
+    "list": {
+      "type": "boolean",
+      "description": "Print a one-line self-description and exit without writing anything.",
+      "default": false
+    },
     "routePrefix": {
       "type": "string",
       "description": "Where the admin pages mount — '<routePrefix>/permissions' and '<routePrefix>/roles'. The one genuinely configurable thing about where this feature lives in an app's URL structure. The 'forbidden' page is always mounted at the fixed top-level '/forbidden', matching permissionGuard's redirect target.",

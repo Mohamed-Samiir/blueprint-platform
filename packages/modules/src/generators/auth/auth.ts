@@ -41,6 +41,16 @@ function readClassName(tree: Tree, path: string): string {
  * `task-auth-module-platform-sync-v2.md` Task 1 for why that matters).
  */
 export default async function (tree: Tree, options: AuthGeneratorSchema) {
+  // No real file-based catalog to discover (unlike layout/components) — a
+  // fixed one-line self-description, for interface consistency with `--list`
+  // elsewhere. See tasks/task-cli-core-and-cli.md Part B3.
+  if (options.list) {
+    console.log(
+      'auth — JWT or session authentication, with login/signup/forgot-password/change-password forms and its own layout.',
+    );
+    return;
+  }
+
   const appRoot = '.';
   const authType = options.authType ?? 'jwt';
   const storeType = options.storeType ?? 'local';
@@ -62,26 +72,43 @@ export default async function (tree: Tree, options: AuthGeneratorSchema) {
     }
   }
 
-  // 1. Core auth files — service/interceptor for BOTH strategies, storage seam,
-  // mock backend, models, and the `AUTH_FEATURES` token (`auth-features.token.ts.template`
-  // — the one file here that's genuinely EJS-substituted, always copied
-  // regardless of which of the three flags below are set, since the
-  // always-present `login-form` always depends on it) — copied once, then the
-  // strategy that wasn't chosen is dropped (mirrors the "copy then delete what
-  // doesn't apply" idiom already used elsewhere in this project, e.g. the
-  // language-switcher cleanup in `foundation:layout`).
+  // 1a. Core auth files that stay under `core/` — the interceptor pair, the
+  // storage seam, the mock backend, and the `AUTH_FEATURES` token
+  // (`auth-features.token.ts.template` — the one file here that's genuinely
+  // EJS-substituted, always copied regardless of which of the three flags
+  // below are set, since the always-present `login-form` always depends on
+  // it). `core/` stays reserved for cross-cutting app-wide singletons — an
+  // interceptor, the storage seam, the DI provider setup — never a module's
+  // own domain models/services (see 1b).
   const authCoreDir = `${appRoot}/src/app/core/auth`;
   generateFiles(tree, joinPathFragments(__dirname, 'files/core/auth'), authCoreDir, {
     includeSignup,
     includeForgotPassword,
     includeChangePassword,
   });
+
+  // 1b. Models + services live under the module's OWN `features/auth/`, not
+  // `core/` — this platform's convention for a module's domain models/
+  // services (see the same choice in `modules:rbac`/`modules:user-management`).
+  // Both service strategies are copied, then the one `authType` didn't select
+  // is dropped, same idiom as the interceptor pair above.
+  const authModelsDir = `${appRoot}/src/app/features/auth/models`;
+  generateFiles(tree, joinPathFragments(__dirname, 'files/features/auth/models'), authModelsDir, {});
+
+  const authServicesDir = `${appRoot}/src/app/features/auth/services`;
+  generateFiles(
+    tree,
+    joinPathFragments(__dirname, 'files/features/auth/services'),
+    authServicesDir,
+    {},
+  );
+
   if (authType === 'jwt') {
-    tree.delete(`${authCoreDir}/session-auth.service.ts`);
     tree.delete(`${authCoreDir}/session-auth.interceptor.ts`);
+    tree.delete(`${authServicesDir}/session-auth.service.ts`);
   } else {
-    tree.delete(`${authCoreDir}/jwt-auth.service.ts`);
     tree.delete(`${authCoreDir}/jwt-auth.interceptor.ts`);
+    tree.delete(`${authServicesDir}/jwt-auth.service.ts`);
   }
 
   // 2. Forms. `login-form` is always copied — it's the one form with no flag of

@@ -7,7 +7,7 @@ import { HlmCheckboxImports } from '@blueprint-platform/ui/checkbox';
 import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmInput } from '@blueprint-platform/ui/input';
 import { HlmNativeSelectImports } from '@blueprint-platform/ui/native-select';
-import { PermissionsService } from '../../../../core/rbac/permissions.service';
+import { PermissionsService } from '../../services/permissions.service';
 import { wouldCreateCycle } from '../../../../core/rbac/permission-graph';
 
 const NEW_MODULE = '__new__';

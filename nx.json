@@ -59,7 +59,9 @@
       "foundation",
       "components",
       "modules",
-      "templates"
+      "templates",
+      "cli-core",
+      "cli"
     ],
     "projectsRelationship": "independent",
     "version": {

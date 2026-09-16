@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/foundation",
-  "version": "0.1.35",
+  "version": "0.1.38",
   "publishConfig": {
     "access": "public"
   },

@@ -93,4 +93,24 @@ describe('ui generator', () => {
       uiGenerator(tree, { components: 'not-a-real-component', skipFormat: true, skipInstall: true }),
     ).rejects.toThrow(/unknown component/i);
   });
+
+  describe('--list', () => {
+    let logSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      logSpy.mockRestore();
+    });
+
+    it('prints every available component name and exits without writing anything', async () => {
+      await uiGenerator(tree, { list: true });
+      const printed = logSpy.mock.calls.map((c) => c[0]);
+      expect(printed.sort()).toEqual(listAllComponents().sort());
+      expect(tree.exists('src/app/shared/ui')).toBe(false);
+      expect(readJson(tree, '.blueprint/manifest.json').components).toEqual([]);
+    });
+  });
 });

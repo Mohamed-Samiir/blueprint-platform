@@ -53,10 +53,11 @@ function readShellClassName(tree: Tree, shellDir: string, name: string): string 
  * generation-time `layout` option — `preset.ts` composes into this same
  * function rather than duplicating the logic (see its call site).
  */
+/** Content-only shells for `modules:auth` — never offered as a top-level "add a layout" choice. */
+const NON_LAYOUT_CATALOG_ENTRIES = ['auth-split', 'auth-centered'];
+
 export default async function (tree: Tree, options: LayoutGeneratorSchema) {
   const appRoot = '.';
-  const wireRoutes = options.wireRoutes ?? true;
-  const withAccountMenu = options.withAccountMenu ?? true;
   // Same catalog preset.ts draws from: dist/generators/preset/files/layout —
   // this generator's own compiled location is dist/generators/layout/layout.js,
   // so it's a sibling reached via ../preset/files/layout, not the ../../../
@@ -66,6 +67,19 @@ export default async function (tree: Tree, options: LayoutGeneratorSchema) {
     statSync(join(catalogDir, f)).isDirectory(),
   );
 
+  if (options.list) {
+    for (const name of available.filter((n) => !NON_LAYOUT_CATALOG_ENTRIES.includes(n))) {
+      console.log(name);
+    }
+    return;
+  }
+
+  const wireRoutes = options.wireRoutes ?? true;
+  const withAccountMenu = options.withAccountMenu ?? true;
+
+  if (!options.name) {
+    throw new Error('layout: --name is required (or pass --list to see available layouts).');
+  }
   if (!available.includes(options.name)) {
     throw new Error(
       `Unknown layout "${options.name}". Available: ${available.join(', ')}`,

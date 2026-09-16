@@ -1,0 +1,11 @@
+@if (user(); as u) {
+<app-user-form
+  mode="edit"
+  [initialUser]="u"
+  (submitted)="onSubmitted($event)"
+/>
+} @else if (notFound()) {
+<p class="text-muted-foreground p-6 text-center text-sm">
+  No user with that id.
+</p>
+}

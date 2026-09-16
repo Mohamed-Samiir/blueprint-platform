@@ -17,15 +17,6 @@
       "type": "boolean",
       "default": false
     },
-    "labelPosition": {
-      "type": "string",
-      "enum": [
-        "floating",
-        "inline",
-        "top"
-      ],
-      "default": "floating"
-    },
     "layout": {
       "type": "string",
       "enum": [

@@ -1,4 +1,4 @@
-import type { ManagedUser } from './models';
+import type { ManagedUser } from '../../features/user-management/models/models';
 
 /** Seed data — written to storage on first run only, never re-read after that. */
 export const MOCK_MANAGED_USERS: ManagedUser[] = [

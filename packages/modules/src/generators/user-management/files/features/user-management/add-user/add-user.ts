@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UserService } from '../../../core/user-management/user.service';
+import { UserService } from '../services/user.service';
 import { UserForm, UserFormValue } from '../user-form/user-form';
 
 /** Thin host for `UserForm` in `add` mode (Task 3.3). */

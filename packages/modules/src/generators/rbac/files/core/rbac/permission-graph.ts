@@ -1,4 +1,4 @@
-import type { Permission } from './models';
+import type { Permission } from '../../features/rbac/models/models';
 
 /**
  * Everything `permissionId` requires — transitively. If A depends on B and B

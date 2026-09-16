@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/
 import { BrnAlertDialogContent } from '@spartan-ng/brain/alert-dialog';
 import { HlmAlertDialog, HlmAlertDialogImports } from '@blueprint-platform/ui/alert-dialog';
 import { HlmBadgeImports } from '@blueprint-platform/ui/badge';
-import type { ManagedUser } from '../../../core/user-management/models';
+import type { ManagedUser } from '../models/models';
 
 /**
  * Read-only details view (Task 3.5) — a dialog, matching the list's own

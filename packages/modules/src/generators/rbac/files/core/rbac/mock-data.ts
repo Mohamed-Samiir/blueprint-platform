@@ -1,4 +1,4 @@
-import type { Module, Permission, Role } from './models';
+import type { Module, Permission, Role } from '../../features/rbac/models/models';
 
 /**
  * Seed data for the RBAC preview / first run. `PermissionsService` and

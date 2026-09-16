@@ -1,0 +1,30 @@
+<hlm-alert-dialog #dialog>
+  <ng-template brnAlertDialogContent>
+    <hlm-alert-dialog-content>
+      <hlm-alert-dialog-header>
+        <h3 hlmAlertDialogTitle>
+          Change role for "{{ pendingUser()?.username }}"
+        </h3>
+        <p hlmAlertDialogDescription>Pick a new account role.</p>
+      </hlm-alert-dialog-header>
+
+      <hlm-field>
+        <label hlmFieldLabel for="change-role-select">Account role</label>
+        <hlm-native-select
+          id="change-role-select"
+          [value]="selectedRole()"
+          (change)="selectedRole.set($any($event.target).value)"
+        >
+          @for (role of roleOptions; track role) {
+          <option hlmNativeSelectOption [value]="role">{{ role }}</option>
+          }
+        </hlm-native-select>
+      </hlm-field>
+
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel>Cancel</button>
+        <button hlmAlertDialogAction (click)="confirm()">Save</button>
+      </hlm-alert-dialog-footer>
+    </hlm-alert-dialog-content>
+  </ng-template>
+</hlm-alert-dialog>

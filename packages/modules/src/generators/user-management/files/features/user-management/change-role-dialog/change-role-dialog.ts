@@ -13,8 +13,8 @@ import { HlmAlertDialog, HlmAlertDialogImports } from '@blueprint-platform/ui/al
 import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmNativeSelectImports } from '@blueprint-platform/ui/native-select';
 import { ROLE_OPTIONS } from '../../../core/user-management/role-options.data';
-import type { ManagedUser } from '../../../core/user-management/models';
-import { UserService } from '../../../core/user-management/user.service';
+import type { ManagedUser } from '../models/models';
+import { UserService } from '../services/user.service';
 
 /**
  * Change-role dialog (Task 3.7): a role select + confirm, invoked from

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import type { ManagedUser } from '../../../core/user-management/models';
-import { UserService } from '../../../core/user-management/user.service';
+import type { ManagedUser } from '../models/models';
+import { UserService } from '../services/user.service';
 import { UserForm, UserFormValue } from '../user-form/user-form';
 
 /**

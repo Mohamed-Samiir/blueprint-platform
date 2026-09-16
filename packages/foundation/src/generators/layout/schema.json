@@ -8,7 +8,12 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Layout folder name under files/layout/ (e.g. sidebar-shell)."
+      "description": "Layout folder name under files/layout/ (e.g. sidebar-shell). Not required when --list is passed."
+    },
+    "list": {
+      "type": "boolean",
+      "description": "Print the available layout names (excluding auth-split/auth-centered, which are content-only shells for modules:auth, not a top-level layout choice) and exit without writing anything.",
+      "default": false
     },
     "wireRoutes": {
       "type": "boolean",
@@ -20,8 +25,5 @@
       "description": "Add the user-menu/theme-switcher (+ language-switcher) account-menu family. Default true for the four main app shells. Set false for a shell with no signed-in user yet (e.g. an auth shell).",
       "default": true
     }
-  },
-  "required": [
-    "name"
-  ]
+  }
 }

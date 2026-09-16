@@ -1,4 +1,6 @@
 export interface AuthGeneratorSchema {
+  /** Print a one-line self-description and exit without writing anything. */
+  list?: boolean;
   /** Which auth strategy's service + interceptor to copy. Default 'jwt'. */
   authType?: 'jwt' | 'session';
   /** Where auth tokens live. Default 'local'. */

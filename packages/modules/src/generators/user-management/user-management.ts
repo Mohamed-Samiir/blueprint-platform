@@ -12,13 +12,18 @@ import { UserManagementGeneratorSchema } from './schema';
 
 /**
  * Add the user-management module to an existing project: `ManagedUser` model
- * + mock-backed `UserService` (`UserStorage`-backed, same mock-persistence
- * choice `modules:auth`/`modules:rbac` make), the users list (avatar
- * thumbnail, status badge, row actions), the shared `UserForm` + its
+ * (`features/user-management/models/`) + mock-backed `UserService`
+ * (`features/user-management/services/`, `UserStorage`-backed, same
+ * mock-persistence choice `modules:auth`/`modules:rbac` make), the users list
+ * (avatar thumbnail, status badge, row actions), the shared `UserForm` + its
  * `add-user`/`edit-user` thin hosts, and the details/change-role/deactivate
  * dialogs — then wires the routed pieces as ORDINARY feature routes inside
  * whatever main shell already exists (`appendChildRoutes`, the same helper
- * built for `modules:rbac`), never a standalone sibling branch.
+ * built for `modules:rbac`), never a standalone sibling branch. **Model +
+ * service live under the module's own `features/user-management/`, not
+ * `core/`** — `core/user-management/` is reserved for the cross-cutting
+ * pieces (`UserStorage`, `user-id.ts`, `role-options.data.ts`, mock data)
+ * that aren't the module's own domain model/service.
  *
  * **A simpler sync than `auth` or `rbac`: zero dependency on either, in
  * either direction.** No `@blueprint-platform/foundation` dependency (no
@@ -35,6 +40,16 @@ import { UserManagementGeneratorSchema } from './schema';
  * two dialogs. Only `UsersList`, `AddUser`, and `EditUser` are routed.
  */
 export default async function (tree: Tree, options: UserManagementGeneratorSchema) {
+  // No real file-based catalog to discover (unlike layout/components) — a
+  // fixed one-line self-description, for interface consistency with `--list`
+  // elsewhere. See tasks/task-cli-core-and-cli.md Part B3.
+  if (options.list) {
+    console.log(
+      'user-management — User list + add/edit/details/change-role/deactivate, works standalone.',
+    );
+    return;
+  }
+
   const appRoot = '.';
   const routePrefix = options.routePrefix ?? 'admin/users';
 

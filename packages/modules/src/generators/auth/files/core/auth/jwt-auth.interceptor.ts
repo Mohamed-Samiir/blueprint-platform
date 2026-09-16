@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { JwtAuthService } from './jwt-auth.service';
+import { JwtAuthService } from '../../features/auth/services/jwt-auth.service';
 
 /**
  * Attaches `Authorization: Bearer <accessToken>` whenever the JWT strategy has a

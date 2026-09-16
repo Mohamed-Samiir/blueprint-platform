@@ -7,7 +7,6 @@ export function patchAppConfig(
   options: {
     palette: string;
     rtl: boolean;
-    labelPosition: string;
     /** Whether `core/language/language.service.ts` will exist — either variant. */
     hasLanguageService: boolean;
   },
@@ -51,7 +50,7 @@ export function patchAppConfig(
 
   appendProvider(tree, appRoot, {
     imports: [{ names: 'provideBlueprint', from: './core/config/provide-blueprint' }],
-    providerExpression: `...provideBlueprint({ palette: '${options.palette}', rtl: ${options.rtl}, labelPosition: '${options.labelPosition}' })`,
+    providerExpression: `...provideBlueprint({ palette: '${options.palette}', rtl: ${options.rtl} })`,
   });
 
   // Nx-generated Angular apps have a per-project project.json, not a

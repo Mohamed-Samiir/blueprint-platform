@@ -36,6 +36,19 @@ const MARKER = '<!-- BP:NAV_ITEMS -->';
  * Does nothing if the marker itself is missing (e.g. an older project
  * generated before Task 1's marker retrofit) — not an error, just nothing to
  * anchor on.
+ *
+ * **The `#rla` template reference variable is unique per item, derived from
+ * `routerLink`.** A first version hardcoded the literal name `#rla` on every
+ * inserted item — since Angular template reference variables live in one flat
+ * scope per template (not scoped to their own element), every `<a>` sharing
+ * that name resolves `rla` to whichever `RouterLinkActive` instance the
+ * template picks, and every `[isActive]="rla.isActive"` binding across every
+ * item ends up reading that ONE shared instance — the observed bug was every
+ * nav link showing "active" simultaneously, not just its own. Each item's
+ * variable name is now `rla` + a PascalCase-sanitized `routerLink` (e.g.
+ * `/admin/roles` → `rlaAdminRoles`), which is also why two items can never
+ * collide: distinct `routerLink`s (already required for the idempotency check
+ * above) sanitize to distinct names.
  */
 export function appendNavItem(
   tree: Tree,
@@ -46,13 +59,14 @@ export function appendNavItem(
   if (!content) return;
 
   if (!content.includes(`routerLink="${item.routerLink}"`) && content.includes(MARKER)) {
+    const varName = toTemplateVarName(item.routerLink);
     const newItem = `<li hlmSidebarMenuItem>
               <a
                 hlmSidebarMenuButton
                 routerLink="${item.routerLink}"
                 routerLinkActive
-                #rla="routerLinkActive"
-                [isActive]="rla.isActive"
+                #${varName}="routerLinkActive"
+                [isActive]="${varName}.isActive"
                 [tooltip]="'${item.label}'"
               >
                 <ng-icon name="${item.icon}" />
@@ -65,6 +79,17 @@ export function appendNavItem(
   }
 
   registerIcon(tree, layoutFilePath.replace(/\.html$/, '.ts'), item.icon);
+}
+
+/** `/admin/roles` → `rlaAdminRoles` — a unique, valid template-reference-variable name per routerLink. */
+function toTemplateVarName(routerLink: string): string {
+  const pascal = routerLink
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join('')
+    .replace(/[^A-Za-z0-9]/g, '');
+  return `rla${pascal}`;
 }
 
 /** Add `iconName` to the shell's `@ng-icons/lucide` import and `provideIcons({…})` call, if not already present. */

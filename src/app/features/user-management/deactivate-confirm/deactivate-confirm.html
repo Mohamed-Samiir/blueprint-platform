@@ -1,0 +1,24 @@
+<hlm-alert-dialog #dialog>
+  <ng-template brnAlertDialogContent>
+    <hlm-alert-dialog-content>
+      <hlm-alert-dialog-header>
+        @if (pendingUser(); as user) {
+        <h3 hlmAlertDialogTitle>
+          {{ user.status === 'active' ? 'Deactivate' : 'Activate' }} "{{
+          user.username }}"?
+        </h3>
+        <p hlmAlertDialogDescription>
+          @if (user.status === 'active') { They will lose access until
+          reactivated. } @else { They will regain access immediately. }
+        </p>
+        }
+      </hlm-alert-dialog-header>
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel>Cancel</button>
+        <button hlmAlertDialogAction (click)="confirm()">
+          {{ pendingUser()?.status === 'active' ? 'Deactivate' : 'Activate' }}
+        </button>
+      </hlm-alert-dialog-footer>
+    </hlm-alert-dialog-content>
+  </ng-template>
+</hlm-alert-dialog>

@@ -1,6 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { SessionAuthService } from './session-auth.service';
+import { SessionAuthService } from '../../features/auth/services/session-auth.service';
 
 /**
  * Echoes the stored session id back on every outgoing request as an

@@ -1,6 +1,7 @@
 {
   "foundation": "0.1.0",
-  "components": "0.1.4",
-  "modules": "0.1.6",
-  "templates": "0.1.0"
+  "components": "0.1.5",
+  "modules": "0.1.8",
+  "templates": "0.1.0",
+  "cli": "0.1.0"
 }

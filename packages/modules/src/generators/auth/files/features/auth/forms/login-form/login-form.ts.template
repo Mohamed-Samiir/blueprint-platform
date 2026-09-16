@@ -13,9 +13,9 @@ import { HlmInputGroupImports } from '@blueprint-platform/ui/input-group';
 import { HlmSpinner } from '@blueprint-platform/ui/spinner';
 import { AUTH_FEATURES } from '../../../../core/auth/auth-features.token';
 <% if (authType === 'session') { -%>
-import { SessionAuthService } from '../../../../core/auth/session-auth.service';
+import { SessionAuthService } from '../../services/session-auth.service';
 <% } else { -%>
-import { JwtAuthService } from '../../../../core/auth/jwt-auth.service';
+import { JwtAuthService } from '../../services/jwt-auth.service';
 <% } -%>
 
 type SocialProvider = 'google' | 'microsoft';

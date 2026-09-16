@@ -46,24 +46,30 @@ describe('modules:auth generator', () => {
 
   it('copies only the chosen strategy (jwt default) and drops the other', async () => {
     await authGenerator(tree, {});
-    expect(tree.exists('src/app/core/auth/jwt-auth.service.ts')).toBe(true);
+    expect(tree.exists('src/app/features/auth/services/jwt-auth.service.ts')).toBe(true);
     expect(tree.exists('src/app/core/auth/jwt-auth.interceptor.ts')).toBe(true);
-    expect(tree.exists('src/app/core/auth/session-auth.service.ts')).toBe(false);
+    expect(tree.exists('src/app/features/auth/services/session-auth.service.ts')).toBe(false);
     expect(tree.exists('src/app/core/auth/session-auth.interceptor.ts')).toBe(false);
   });
 
   it('copies only the session strategy when authType is session', async () => {
     await authGenerator(tree, { authType: 'session' });
-    expect(tree.exists('src/app/core/auth/session-auth.service.ts')).toBe(true);
+    expect(tree.exists('src/app/features/auth/services/session-auth.service.ts')).toBe(true);
     expect(tree.exists('src/app/core/auth/session-auth.interceptor.ts')).toBe(true);
-    expect(tree.exists('src/app/core/auth/jwt-auth.service.ts')).toBe(false);
+    expect(tree.exists('src/app/features/auth/services/jwt-auth.service.ts')).toBe(false);
     expect(tree.exists('src/app/core/auth/jwt-auth.interceptor.ts')).toBe(false);
+  });
+
+  it('puts models under features/auth/models and services under features/auth/services, not core/', async () => {
+    await authGenerator(tree, {});
+    expect(tree.exists('src/app/features/auth/models/models.ts')).toBe(true);
+    expect(tree.exists('src/app/core/auth/models.ts')).toBe(false);
+    expect(tree.exists('src/app/core/auth/jwt-auth.service.ts')).toBe(false);
   });
 
   it('always copies the shared core files and every form', async () => {
     await authGenerator(tree, {});
     for (const f of [
-      'models.ts',
       'auth-mock.data.ts',
       'token-store.ts',
       'local-storage-token-store.ts',
@@ -258,5 +264,13 @@ describe('modules:auth generator', () => {
     // Only one 'auth' branch should exist — the second run short-circuits
     // because the manifest already lists 'auth' under `modules`.
     expect(out.split(`path: 'auth'`).length).toBe(2);
+  });
+
+  it('--list prints a one-line self-description and exits without writing anything', async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    await authGenerator(tree, { list: true });
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('auth'));
+    expect(tree.exists('src/app/core/auth')).toBe(false);
+    logSpy.mockRestore();
   });
 });

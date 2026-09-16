@@ -40,7 +40,14 @@ function makeTree(routesTemplate = FLAT_ROUTES): Tree {
 
 const SHELL_HTML = `<ul hlmSidebarMenu>
   <li hlmSidebarMenuItem>
-    <a routerLink="/" [tooltip]="'Welcome'">
+    <a
+      routerLink="/"
+      routerLinkActive
+      [routerLinkActiveOptions]="{ exact: true }"
+      #rlaWelcome="routerLinkActive"
+      [isActive]="rlaWelcome.isActive"
+      [tooltip]="'Welcome'"
+    >
       <ng-icon name="lucideHouse" />
       <span>Welcome</span>
     </a>
@@ -81,19 +88,27 @@ describe('modules:rbac generator', () => {
     await rbacGenerator(tree, {});
     for (const f of [
       'current-user-permissions.token.ts',
-      'rbac-demo-session.service.ts',
-      'models.ts',
       'mock-users.data.ts',
       'mock-data.ts',
       'permission-graph.ts',
       'permission.guard.ts',
-      'permissions.service.ts',
       'rbac-id.ts',
       'rbac-storage.ts',
-      'roles.service.ts',
     ]) {
       expect(tree.exists(`src/app/core/rbac/${f}`)).toBe(true);
     }
+  });
+
+  it('puts models under features/rbac/models and services under features/rbac/services, not core/', async () => {
+    await rbacGenerator(tree, {});
+    expect(tree.exists('src/app/features/rbac/models/models.ts')).toBe(true);
+    expect(tree.exists('src/app/features/rbac/services/permissions.service.ts')).toBe(true);
+    expect(tree.exists('src/app/features/rbac/services/roles.service.ts')).toBe(true);
+    expect(tree.exists('src/app/features/rbac/services/rbac-demo-session.service.ts')).toBe(true);
+    expect(tree.exists('src/app/core/rbac/models.ts')).toBe(false);
+    expect(tree.exists('src/app/core/rbac/permissions.service.ts')).toBe(false);
+    expect(tree.exists('src/app/core/rbac/roles.service.ts')).toBe(false);
+    expect(tree.exists('src/app/core/rbac/rbac-demo-session.service.ts')).toBe(false);
   });
 
   it('copies the features/rbac admin pages and the forbidden page, but no preview scaffolding', async () => {
@@ -257,5 +272,13 @@ describe('modules:rbac generator', () => {
     };
     walk('src/app/core/rbac');
     walk('src/app/features/rbac');
+  });
+
+  it('--list prints a one-line self-description and exits without writing anything', async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    await rbacGenerator(tree, { list: true });
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('rbac'));
+    expect(tree.exists('src/app/core/rbac')).toBe(false);
+    logSpy.mockRestore();
   });
 });

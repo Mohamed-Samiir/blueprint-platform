@@ -23,7 +23,7 @@ import type {
   ForgotPasswordNewPasswordRequest,
   LoginRequest,
   SignupRequest,
-} from './models';
+} from '../../features/auth/models/models';
 
 /** Artificial round-trip latency, milliseconds. */
 const LATENCY = 600;

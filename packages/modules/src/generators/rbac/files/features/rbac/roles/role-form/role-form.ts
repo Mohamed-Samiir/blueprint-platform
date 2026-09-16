@@ -17,10 +17,10 @@ import { HlmFieldImports } from '@blueprint-platform/ui/field';
 import { HlmInput } from '@blueprint-platform/ui/input';
 import { HlmSwitchImports } from '@blueprint-platform/ui/switch';
 import { HlmTextareaImports } from '@blueprint-platform/ui/textarea';
-import type { Permission } from '../../../../core/rbac/models';
+import type { Permission } from '../../models/models';
 import { resolveDependencies, resolveDependents } from '../../../../core/rbac/permission-graph';
-import { PermissionsService } from '../../../../core/rbac/permissions.service';
-import { RolesService } from '../../../../core/rbac/roles.service';
+import { PermissionsService } from '../../services/permissions.service';
+import { RolesService } from '../../services/roles.service';
 
 interface PendingUncheck {
   permission: Permission;

@@ -3,6 +3,8 @@ export interface UiGeneratorSchema {
   components?: string;
   /** Add every available UI component not already in the project. */
   all?: boolean;
+  /** Print every available component name and exit without writing anything. */
+  list?: boolean;
   /** Project root to add components into. */
   project?: string;
   /** Skip Prettier. */

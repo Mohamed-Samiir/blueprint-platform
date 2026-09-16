@@ -1,6 +1,8 @@
 export interface LayoutGeneratorSchema {
-  /** Layout folder name under files/layout/ (e.g. "sidebar-shell"). */
-  name: string;
+  /** Layout folder name under files/layout/ (e.g. "sidebar-shell"). Not required when `list` is set. */
+  name?: string;
+  /** Print the available layout names (excluding auth-split/auth-centered) and exit without writing anything. */
+  list?: boolean;
   /**
    * Sweep the project's existing top-level routes under this shell
    * (`wrapRoutesUnderLayout`) and wire the welcome screen as its index route.

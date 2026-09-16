@@ -1,0 +1,47 @@
+<hlm-alert-dialog #dialog>
+  <ng-template brnAlertDialogContent>
+    <hlm-alert-dialog-content>
+      @if (user(); as u) {
+      <hlm-alert-dialog-header>
+        <h3 hlmAlertDialogTitle>{{ u.username }}</h3>
+      </hlm-alert-dialog-header>
+
+      <div class="grid gap-4">
+        @if (u.profileImage) {
+        <img
+          [src]="u.profileImage"
+          alt="{{ u.username }}'s profile image"
+          class="border-border size-32 rounded-lg border object-cover"
+        />
+        } @else {
+        <div
+          class="border-border bg-muted text-muted-foreground flex size-32 items-center justify-center rounded-lg border text-sm"
+        >
+          No image
+        </div>
+        }
+
+        <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+          <dt class="text-muted-foreground">Email</dt>
+          <dd>{{ u.email }}</dd>
+          <dt class="text-muted-foreground">Account role</dt>
+          <dd>{{ u.accountRole }}</dd>
+          <dt class="text-muted-foreground">Status</dt>
+          <dd>
+            <span
+              hlmBadge
+              [variant]="u.status === 'active' ? 'default' : 'outline'"
+            >
+              {{ u.status === 'active' ? 'Active' : 'Inactive' }}
+            </span>
+          </dd>
+        </dl>
+      </div>
+      }
+
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel>Close</button>
+      </hlm-alert-dialog-footer>
+    </hlm-alert-dialog-content>
+  </ng-template>
+</hlm-alert-dialog>

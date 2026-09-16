@@ -18,5 +18,70 @@
     {
       "path": "./packages/generator-kit"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@blueprint-platform/ui/accordion": [
+        "./src/app/shared/ui/accordion/src/index.ts"
+      ],
+      "@blueprint-platform/ui/alert": [
+        "./src/app/shared/ui/alert/src/index.ts"
+      ],
+      "@blueprint-platform/ui/alert-dialog": [
+        "./src/app/shared/ui/alert-dialog/src/index.ts"
+      ],
+      "@blueprint-platform/ui/badge": [
+        "./src/app/shared/ui/badge/src/index.ts"
+      ],
+      "@blueprint-platform/ui/button": [
+        "./src/app/shared/ui/button/src/index.ts"
+      ],
+      "@blueprint-platform/ui/checkbox": [
+        "./src/app/shared/ui/checkbox/src/index.ts"
+      ],
+      "@blueprint-platform/ui/dropdown-menu": [
+        "./src/app/shared/ui/dropdown-menu/src/index.ts"
+      ],
+      "@blueprint-platform/ui/field": [
+        "./src/app/shared/ui/field/src/index.ts"
+      ],
+      "@blueprint-platform/ui/input": [
+        "./src/app/shared/ui/input/src/index.ts"
+      ],
+      "@blueprint-platform/ui/label": [
+        "./src/app/shared/ui/label/src/index.ts"
+      ],
+      "@blueprint-platform/ui/native-select": [
+        "./src/app/shared/ui/native-select/src/index.ts"
+      ],
+      "@blueprint-platform/ui/pagination": [
+        "./src/app/shared/ui/pagination/src/index.ts"
+      ],
+      "@blueprint-platform/ui/select": [
+        "./src/app/shared/ui/select/src/index.ts"
+      ],
+      "@blueprint-platform/ui/separator": [
+        "./src/app/shared/ui/separator/src/index.ts"
+      ],
+      "@blueprint-platform/ui/switch": [
+        "./src/app/shared/ui/switch/src/index.ts"
+      ],
+      "@blueprint-platform/ui/table": [
+        "./src/app/shared/ui/table/src/index.ts"
+      ],
+      "@blueprint-platform/ui/textarea": [
+        "./src/app/shared/ui/textarea/src/index.ts"
+      ],
+      "@blueprint-platform/ui/utils": [
+        "./src/app/shared/ui/utils/src/index.ts"
+      ],
+      "@blueprint-platform/ui/avatar": [
+        "./src/app/shared/ui/avatar/src/index.ts"
+      ],
+      "@blueprint-platform/ui/card": ["./src/app/shared/ui/card/src/index.ts"],
+      "@blueprint-platform/ui/input-group": [
+        "./src/app/shared/ui/input-group/src/index.ts"
+      ]
+    }
+  }
 }

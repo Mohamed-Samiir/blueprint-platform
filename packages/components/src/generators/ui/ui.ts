@@ -28,6 +28,13 @@ export default async function uiGenerator(
   tree: Tree,
   options: UiGeneratorSchema,
 ) {
+  if (options.list) {
+    for (const name of listAllComponents().sort()) {
+      console.log(name);
+    }
+    return;
+  }
+
   const project = options.project ?? '.';
   const uiRoot = `${project}/src/app/shared/ui`;
 

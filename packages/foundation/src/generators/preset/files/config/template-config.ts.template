@@ -1,11 +1,8 @@
 import { InjectionToken } from '@angular/core';
 
-export type LabelPosition = 'floating' | 'inline' | 'top';
-
 export interface BlueprintConfig {
   palette: string;
   rtl: boolean;
-  labelPosition: LabelPosition;
   showThemeSwitcher: boolean;
   showLanguageSwitcher: boolean;
 }
@@ -13,7 +10,6 @@ export interface BlueprintConfig {
 export const DEFAULT_BLUEPRINT_CONFIG: BlueprintConfig = {
   palette: '<%= palette %>',
   rtl: <%= rtl %>,
-  labelPosition: '<%= labelPosition %>',
   showThemeSwitcher: <%= showThemeSwitcher %>,
   showLanguageSwitcher: <%= showLanguageSwitcher %>,
 };
