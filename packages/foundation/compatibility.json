@@ -1,7 +1,7 @@
 {
-  "foundation": "0.1.0",
-  "components": "0.1.5",
-  "modules": "0.1.11",
+  "foundation": "0.2.0",
+  "components": "0.2.0",
+  "modules": "0.2.0",
   "templates": "0.1.0",
-  "cli": "0.1.0"
+  "cli": "0.2.0"
 }

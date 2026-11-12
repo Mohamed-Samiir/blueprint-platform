@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-platform/foundation",
-  "version": "0.1.41",
+  "version": "0.2.0",
   "publishConfig": {
     "access": "public"
   },
@@ -106,7 +106,7 @@
     "tslib": "^2.3.0",
     "@nx/angular": "23.1.1",
     "ts-morph": "^28.0.0",
-    "@blueprint-platform/components": "^0.1.3",
-    "@blueprint-platform/generator-kit": "^0.1.0"
+    "@blueprint-platform/components": "^0.2.0",
+    "@blueprint-platform/generator-kit": "^0.2.0"
   }
 }
