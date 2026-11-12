@@ -14,6 +14,11 @@
       "factory": "./dist/generators/user-management/user-management",
       "schema": "./dist/generators/user-management/schema.json",
       "description": "Add the user-management module — fully decoupled from modules:auth and modules:rbac — to an existing project"
+    },
+    "form": {
+      "factory": "./dist/generators/form/form",
+      "schema": "./dist/generators/form/schema.json",
+      "description": "Scaffold a reusable form component from a developer-authored bp.models/<name>.ts field descriptor file — no routes, no nav entry"
     }
   }
 }

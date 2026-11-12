@@ -1,0 +1,61 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { <% if (needsFormArray) { %>FormArray, <% } %>FormBuilder, ReactiveFormsModule<% if (usesBuiltInValidators) { %>, Validators<% } %> } from '@angular/forms';
+<% if (needsIcons) { -%>
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { <%- iconImportNames %> } from '@ng-icons/lucide';
+<% } -%>
+<%- importStatementsBlock %>
+<% if (customValidatorFns.length) { -%>
+import { <%- customValidatorFns.join(', ') %> } from '<%= customValidatorsImportPath %>';
+<% } -%>
+
+/**
+ * Scaffolded by `nx g @blueprint-platform/modules:form` from `<%= modelPath %>`.
+ *
+ * Validators from the model are attached to the controls below and their error
+ * messages render inline with each field. **Option lists are still static
+ * placeholders** ("Option 1"/"Option 2"/"Option 3" for select/combobox/radio
+ * fields) — a deliberate, stable design point of `modules:form`, not a TODO
+ * to remove: wire up your real option/data sources yourself before using this
+ * in production.
+ */
+@Component({
+  selector: '<%= selector %>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+<%- componentImportsBlock %>
+  ],
+<% if (needsIcons) { -%>
+  providers: [provideIcons({ <%- iconImportNames %> })],
+<% } -%>
+  templateUrl: './<%= name %>.html',
+  styleUrl: './<%= name %>.scss',
+})
+export class <%= className %> {
+  private readonly fb = inject(FormBuilder);
+
+  protected readonly form = this.fb.nonNullable.group({
+<%- formControlsCode %>
+  });
+<% if (arrayMembersCode) { -%>
+
+<%- arrayMembersCode %>
+<% } -%>
+<% if (needsAttachmentHandlers) { -%>
+
+  protected removeAttachment(fileName: string): void {
+    // TODO: remove `fileName` from your real attachment list, then update the attachment control's value.
+  }
+
+  protected onAttachmentsSelected(event: Event): void {
+    // TODO: read `(event.target as HTMLInputElement).files`, add them to your real attachment list, and
+    // `setValue(...)` the attachment control with the resulting File[] so its validators can run.
+  }
+<% } -%>
+<% handlerNames.forEach(function (handler) { -%>
+
+  <%- handler %>(): void {
+    // TODO: implement <%- handler %>
+  }
+<% }); -%>
+}

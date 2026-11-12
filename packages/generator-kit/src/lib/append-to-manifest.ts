@@ -1,6 +1,6 @@
 import { Tree, readJson, writeJson } from '@nx/devkit';
 
-export type ManifestCategory = 'components' | 'modules' | 'layouts';
+export type ManifestCategory = 'components' | 'modules' | 'layouts' | 'forms';
 
 /**
  * Ensure `.blueprint/manifest.json`'s `<category>` array contains `entry`

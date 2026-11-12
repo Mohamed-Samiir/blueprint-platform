@@ -390,6 +390,11 @@ export default async function (tree: Tree, options: PresetGeneratorSchema) {
         // must never be swept into a later-added main shell's children — see
         // `generator-kit`'s `addLayoutBranch`/`wrapRoutesUnderLayout`.
         protectedRouteBranches: [],
+        // `modules:form`'s own idempotency-adjacent record of generated form
+        // component names (not idempotency-gating like `modules`/`components`
+        // — running `modules:form` twice with the same `--name` just
+        // overwrites the same three files, there's nothing to no-op).
+        forms: [],
         template: null,
       },
       null,
