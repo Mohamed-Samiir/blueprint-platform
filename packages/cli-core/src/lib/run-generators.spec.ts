@@ -4,7 +4,7 @@ jest.mock('./exec', () => ({
 }));
 
 import { runGenerator } from './exec';
-import { runComponentsUi, runFoundationLayout, runModule } from './run-generators';
+import { runComponentsUi, runFoundationLayout, runModule, runForm } from './run-generators';
 
 const mockRunGenerator = runGenerator as unknown as jest.Mock;
 
@@ -50,6 +50,26 @@ describe('run-generators', () => {
       '/proj',
       '@blueprint-platform/modules:rbac',
       [],
+      undefined,
+    );
+  });
+
+  it('runForm passes name/model/directory as flags to modules:form', async () => {
+    await runForm('/proj', { name: 'user', model: 'bp.models/user.ts', directory: 'features/users' });
+    expect(mockRunGenerator).toHaveBeenCalledWith(
+      '/proj',
+      '@blueprint-platform/modules:form',
+      ['--name=user', '--model=bp.models/user.ts', '--directory=features/users'],
+      undefined,
+    );
+  });
+
+  it('runForm omits directory when not given', async () => {
+    await runForm('/proj', { name: 'user', model: 'bp.models/user.ts' });
+    expect(mockRunGenerator).toHaveBeenCalledWith(
+      '/proj',
+      '@blueprint-platform/modules:form',
+      ['--name=user', '--model=bp.models/user.ts'],
       undefined,
     );
   });

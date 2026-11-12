@@ -35,3 +35,16 @@ export function runModule(
 ): Promise<string> {
   return runGenerator(cwd, `@blueprint-platform/modules:${moduleName}`, flagsToArgs(flags), registry);
 }
+
+/**
+ * Scaffold a reusable form component from a developer-authored
+ * `bp.models/<name>.ts` file via `modules:form`. `model` is relative to the
+ * project root; `directory` (optional) is relative to `src/app/`.
+ */
+export function runForm(
+  cwd: string,
+  options: { name: string; model: string; directory?: string },
+  registry?: string,
+): Promise<string> {
+  return runGenerator(cwd, '@blueprint-platform/modules:form', flagsToArgs(options), registry);
+}

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { intro, log, outro } from '@clack/prompts';
 import { addComponent } from './lib/add-component.js';
+import { addForm } from './lib/add-form.js';
 import { addLayout } from './lib/add-layout.js';
 import { addModule } from './lib/add-module.js';
 
 function usage(): never {
-  console.error('Usage: blueprint add <layout|component|module>');
+  console.error('Usage: blueprint add <layout|component|module|form>');
   process.exit(1);
 }
 
@@ -32,6 +33,9 @@ async function main() {
         break;
       case 'module':
         await addModule(cwd, registry);
+        break;
+      case 'form':
+        await addForm(cwd, registry);
         break;
       default:
         usage();

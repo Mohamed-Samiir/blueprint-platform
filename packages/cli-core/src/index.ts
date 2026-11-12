@@ -1,4 +1,4 @@
 export { resolveFoundationVersion } from './lib/resolve-version';
-export { runFoundationLayout, runComponentsUi, runModule } from './lib/run-generators';
+export { runFoundationLayout, runComponentsUi, runModule, runForm } from './lib/run-generators';
 export { listLayouts, listComponents, listModules } from './lib/list';
 export { readManifest, type BlueprintManifest } from './lib/manifest';
